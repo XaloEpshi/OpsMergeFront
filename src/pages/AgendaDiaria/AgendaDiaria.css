@@ -1,0 +1,72 @@
+/* src/pages/AgendaDiaria/AgendaDiaria.css */
+
+.agenda-diaria {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.agenda-diaria h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.agenda-diaria form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.agenda-diaria form input,
+.agenda-diaria form button {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.agenda-diaria form button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.agenda-diaria form button:hover {
+  background-color: #0056b3;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.table td {
+  background-color: #fff;
+}
+
+.table button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.table button:hover {
+  background-color: #0056b3;
+}

@@ -1,0 +1,34 @@
+/* src/pages/Anuncios/Anuncios.css */
+
+.anuncios-container {
+    margin: 20px;
+  }
+  
+  .anuncios-container h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .anuncios-container form {
+    margin-bottom: 20px;
+  }
+  
+  .anuncios-tabla {
+    margin-top: 20px;
+  }
+  
+  .anuncios-tabla th, .anuncios-tabla td {
+    text-align: center;
+    font-size: 16px;
+  }
+  
+  .btn-anuncio {
+    background-color: #007bff;
+    border: none;
+    margin-top: 10px;
+  }
+  
+  .btn-anuncio:hover {
+    background-color: #0056b3;
+  }
+  

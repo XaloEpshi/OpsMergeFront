@@ -1,0 +1,168 @@
+/* Contenedor de la tabla */
+.despacho-table-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Encabezado */
+.despacho-table-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2em;
+  color: #333;
+}
+
+/* Fila de búsqueda y botones */
+.search-filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.search-filter-row > form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilos de la tabla */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  background-color: #fff;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #007bff;
+  color: #100f0f;
+  font-weight: bold;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.table tr:hover {
+  background-color: #e9ecef;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Estilo para los botones de acción */
+button[title="Editar"] {
+  background-color: #ffc107;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+button[title="Editar"]:hover {
+  background-color: #e0a800;
+}
+
+button[title="Guardar"] {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button[title="Guardar"]:hover {
+  background-color: #218838;
+}
+
+
+/* Responsividad */
+@media (max-width: 1024px) {
+  .search-filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table-responsive {
+    display: block;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+  }
+
+  .table th,
+  .table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .table tr:hover {
+    background-color: inherit;
+  }
+
+  .table td[data-label="Acciones"] {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px; /* Añadido para espaciar los botones */
+  }
+}
+
+@media (max-width: 768px) {
+  .table th,
+  .table td {
+    display: inline-block;
+    width: auto;
+    min-width: 120px;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  .table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-weight: bold;
+  }
+
+  .table th {
+    display: none;
+  }
+
+  .table td {
+    display: block;
+    border-bottom: 1px solid #ddd;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .table td::before {
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 10px;
+    white-space: nowrap;
+  }
+
+  .table td[data-label="Acciones"] {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px; /* Añadido para espaciar los botones */
+  }
+}

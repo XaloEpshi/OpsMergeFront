@@ -1,0 +1,101 @@
+/* Header.css */
+
+.navbar {
+  background: linear-gradient(to right, #f09819, #ff512f); /* Color barra */
+  padding: 1rem 1.5rem;
+}
+
+.navbar-brand {
+  color: #121112; /* Color Titulo */
+  font-size: 1.7rem;
+  font-weight: bold;
+  font-family: 'Roboto Slab', serif; /* Aplica la nueva fuente */
+  display: flex;
+  align-items: center; /* Alinea el ícono y el texto verticalmente */
+}
+
+.navbar-brand i {
+  margin-right: 10px; /* Espacio entre el ícono y el texto */
+}
+
+.navbar-toggler {
+  border-color: #8e1642; /* Color Toggler pantalla pequeña */
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%28%255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.navbar-nav {
+  margin-left: auto; /* Mueve el contenido del menú hacia la derecha */
+}
+
+.navbar-nav .nav-link {
+  color: #0f0f0f; /* Colores link */
+  font-size: 1.2rem;
+  margin-left: 1rem;
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #ffc107; /* Colores Link al pasar el raton */
+}
+
+.offcanvas-header {
+  background: linear-gradient(to right, #ff512f, #f09819); /* Color barra Menu al abrir */
+  color: #ffffff;
+}
+
+.offcanvas-title {
+  color: #0f0f0f; /* Color Titulo Hola! */
+  font-size: 30px;
+}
+
+.offcanvas-body {
+  background: linear-gradient(to right, #ff512f, #f09819); /* Color menu al Abrir */
+}
+
+.offcanvas-body .nav-link {
+  color: #0b0b0b; /* Color link Titulo */
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.offcanvas-body .nav-link:hover {
+  color: #0f0f0f;
+}
+
+.modal-header {
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.modal-title {
+  color: #ffffff;
+}
+
+.modal-body {
+  background-color: #f8f9fa;
+}
+
+.modal-footer {
+  background-color: #f8f9fa;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.modal-footer .btn-primary {
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
+.logout-section {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 10px 0;
+}

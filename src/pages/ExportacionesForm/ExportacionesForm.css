@@ -1,0 +1,53 @@
+h3 {
+  text-align: center;
+  color: #333;
+}
+
+/* Estilos del formulario */
+.exportaciones-form {
+  max-width: 900px; /* Ajusta el ancho máximo del formulario */
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Asegura que ocupe todo el ancho disponible */
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+  .exportaciones-form {
+    padding: 10px;
+  }
+
+  /* Asegura que las columnas se apilen en pantallas pequeñas */
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .col {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+/* Estilo del botón */
+button[type="submit"] {
+  display: block;
+  width: 50%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 0 auto; 
+}
+
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}

@@ -1,0 +1,98 @@
+.exportaciones-table-container {
+  padding: 20px;
+  background-color: #ffffff; /* Fondo blanco para mejor contraste */
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  margin: 0 auto; /* Centramos el contenedor */
+}
+.exportaciones-table-container h1 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+  text-align: center; /* Centramos el título */
+}
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+  text-align: center; /* Centramos el contenido de las celdas */
+}
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+  background-color: #f2f2f2; /* Color de fondo más claro para el encabezado */
+  color: #212529;
+}
+.table tbody + tbody {
+  border-top: 2px solid #dee2e6;
+}
+.table-hover tbody tr:hover {
+  color: #34373b;
+  background-color: rgba(0, 0, 0, 0.075);
+}
+.table-bordered {
+  border: 1px solid #dee2e6;
+}
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6;
+}
+.table-bordered thead th,
+.table-bordered thead td {
+  border-bottom-width: 2px;
+}
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Estilos de responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+  .table,
+  .table tbody,
+  .table tr,
+  .table td {
+    display: block;
+    width: 100%;
+  }
+  .table tr {
+    margin-bottom: 15px;
+  }
+  .table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+  .table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 15px;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+/* Estilo para el campo de búsqueda y el filtro */
+.search-filter-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.search-filter-row .form-control,
+.search-filter-row .form-select {
+  width: 48%;
+  height: 38px; /* Ajustamos la altura para que coincidan */
+}

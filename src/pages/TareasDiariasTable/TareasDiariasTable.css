@@ -1,0 +1,88 @@
+/* Estilos para el contenedor principal de la tabla de tareas diarias */
+.tareas-table-container {
+  padding: 20px;
+  background-color: #ffffff; /* Cambiado a blanco para contraste */
+  border-radius: 10px;
+  margin-bottom: 20px;
+  max-height: calc(100vh - 200px); /* Ajustar la altura máxima */
+  overflow-y: auto;
+  padding-bottom: 100px; /* Asegúrate de que haya espacio suficiente para el footer */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Añadido sombra para efecto de elevación */
+  border: 1px solid #ddd; /* Añadido borde suave */
+}
+
+/* Estilos para la tabla de tareas diarias */
+.tareas-table {
+  width: 100%;
+  background-color: #ffffff;
+  border-collapse: collapse; /* Cambiado a collapse para mejor apariencia */
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 0.9em; /* Ajuste del tamaño de fuente */
+}
+
+.tareas-table thead {
+  background-color: #007bff;
+  color: #ffffff; /* Cambiado a blanco para mayor contraste */
+}
+
+.tareas-table th, .tareas-table td {
+  padding: 15px;
+  text-align: center;
+  color: #000; /* Cambia el color del texto de las celdas a negro */
+  border: 1px solid #ddd; /* Añadido borde para separación de celdas */
+}
+
+.tareas-table th {
+  font-weight: bold; /* Texto en negrita para encabezados */
+  text-transform: uppercase; /* Encabezados en mayúsculas */
+}
+
+.tareas-table tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.tareas-table tbody tr:hover {
+  background-color: #e9ecef; /* Color de fondo más claro al pasar el cursor */
+  transition: background-color 0.3s ease; /* Añadida transición suave */
+}
+
+/* Media queries para hacer la tabla responsiva */
+@media (max-width: 768px) {
+  .table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tareas-table thead {
+    display: none;
+  }
+
+  .tareas-table tr {
+    display: block;
+    margin-bottom: 0.625em;
+  }
+
+  .tareas-table td {
+    display: block;
+    text-align: right;
+    font-size: 0.8em;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  .tareas-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 10px;
+    font-weight: bold;
+    text-align: left;
+  }
+}

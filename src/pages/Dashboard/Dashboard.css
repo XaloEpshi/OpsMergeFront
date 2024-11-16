@@ -1,0 +1,125 @@
+/* Estilos para el contenedor principal del Dashboard */
+.dashboard-container-unique {
+  padding: 20px;
+}
+
+/* Estilos para la fila de tarjetas */
+.card-row-unique {
+  display: flex;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+/* Estilos para cada tarjeta individual */
+.card-clientes-unique,
+.card-proveedores-unique,
+.card-inventario-unique,
+.card-tareasDiarias-unique,
+.card-anuncios-unique {
+  color: white;
+  flex: 1 1 30%; /* Ajusta el tamaño aquí */
+  margin: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-clientes-unique {
+  background: linear-gradient(to right, #56ab2f, #a8e063);
+}
+
+.card-proveedores-unique {
+  background: linear-gradient(to right, #f09819, #ff512f);
+}
+
+.card-inventario-unique {
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+}
+
+.card-tareasDiarias-unique {
+  background: linear-gradient(to right, #f46b45, #eea849);
+}
+
+.card-anuncios-unique {
+  background: linear-gradient(to right, #56ab2f, #a8e063);
+}
+
+/* Estilos para el título de la tarjeta */
+.card-title-unique {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Estilos para el ícono de notificación */
+.notification-icon-blinking {
+  margin-left: 10px;
+  color: #ff0000;
+  animation: blink 1.5s infinite;
+}
+
+/* Estilos para la tabla de anuncios */
+.anuncios-table-unique {
+  background-color: #f9f9f9;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Cambiar el color del texto en la tabla de anuncios */
+.anuncios-table-unique thead th,
+.anuncios-table-unique tbody td {
+  color: #000 !important; /* Cambia el color a negro para mayor contraste */
+}
+
+.anuncios-table-unique thead {
+  background-color: #007bff;
+  color: white;
+}
+
+.anuncios-table-unique th, .anuncios-table-unique td {
+  padding: 15px;
+  text-align: left;
+}
+
+.anuncios-table-unique tbody tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.anuncios-table-unique tbody tr:hover {
+  background-color: #d3d3d3;
+}
+
+/* Estilo para resaltar los anuncios nuevos */
+.anuncio-nuevo {
+  background-color: #ffef9f; /* Un color de fondo llamativo para anuncios nuevos */
+  color: #000 !important; /* Asegúrate de que el texto sea visible sobre el fondo llamativo */
+}
+
+.notification-icon-blinking {
+  margin-right: 10px;
+  color: #ff4500;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Estilos para el título de la tabla */
+.table-title-unique {
+  color: #007bff;
+  font-size: 2em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
