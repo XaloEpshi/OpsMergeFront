@@ -46,6 +46,15 @@ const AuthForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password, confirmPassword, username, profile } = formData;
+    
+    // Validar formato del correo electrónico
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      setMessage('Por favor ingresa un correo electrónico válido');
+      setMessageType('error');
+      return;
+    }
+    
     if (!isLogin && password !== confirmPassword) {
       setMessage('Las contraseñas no coinciden');
       setMessageType('error');
@@ -68,7 +77,21 @@ const AuthForm = () => {
       setMessageType('success');
       navigate('/dashboard');
     } catch (error) {
-      setMessage(error.message);
+      let errorMessage = '';
+      switch (error.code) {
+        case 'auth/wrong-password':
+          errorMessage = 'La contraseña es incorrecta.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No se encontró un usuario con ese correo.';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'El correo electrónico ya está registrado.';
+          break;
+        default:
+          errorMessage = 'Ocurrió un error, verifica correo o contraseña.';
+      }
+      setMessage(errorMessage);
       setMessageType('error');
     }
   };
@@ -105,7 +128,7 @@ const AuthForm = () => {
             />
             {isCapsLockOn && <span style={{ color: 'red' }}>Mayúsculas activadas</span>}
             <button type="button" onClick={toggleShowPassword} className="toggle-password-unique">
-              {showPassword ? '️' : ''}
+              {showPassword ? '👁️' : '🙈'}
             </button>
           </div>
           {!isLogin && (
@@ -122,7 +145,7 @@ const AuthForm = () => {
                 />
                 {isCapsLockOn && <span style={{ color: 'red' }}>Mayúsculas activadas</span>}
                 <button type="button" onClick={toggleShowConfirmPassword} className="toggle-password-unique">
-                  {showConfirmPassword ? '️' : ''}
+                  {showConfirmPassword ? '👁️' : '🙈'}
                 </button>
               </div>
               <div className="form-control-unique">

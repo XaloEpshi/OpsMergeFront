@@ -14,7 +14,7 @@ const ExportacionesTable = ({ user }) => {
 
   const fetchExportaciones = async () => {
     try {
-      const response = await axios.get("/api/exportaciones");
+      const response = await axios.get("http://localhost:3001/api/exportaciones");
       if (Array.isArray(response.data)) {
         setExportaciones(response.data);
       } else {
@@ -49,7 +49,7 @@ const ExportacionesTable = ({ user }) => {
     };
 
     try {
-      const response = await axios.put(`/api/exportaciones/${editingExportacion.id}`, formattedExportacion);
+      const response = await axios.put(`http://localhost:3001/api/exportaciones/${editingExportacion.id}`, formattedExportacion);
       setExportaciones(
         exportaciones.map((exp) => (exp.id === editingExportacion.id ? response.data : exp))
       );
@@ -61,7 +61,7 @@ const ExportacionesTable = ({ user }) => {
 
   const handleComplete = async (id) => {
     try {
-      await axios.put(`/api/exportaciones/status/${id}`, { status: "Completado" });
+      await axios.put(`http://localhost:3001/api/exportaciones/status/${id}`, { status: "Completado" });
       setExportaciones(
         exportaciones.map((exp) => (exp.id === id ? { ...exp, status: "Completado" } : exp))
       );

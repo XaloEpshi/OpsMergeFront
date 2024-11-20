@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Table, Form, Modal, Button, Alert } from "react-bootstrap";
-import { FaEdit, FaSave } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import DespachoNacionalForm from "../../pages/DespachoNacionalForm/despachoNacionalForm";
 import "./despachoNacionalTable.css";
+import useAuth from '../../hooks/useAuth';
 
 const DespachoNacionalTable = () => {
+  const { userData } = useAuth();
   const [dispatches, setDispatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("En Progreso"); 
+  const [filter, setFilter] = useState("En Progreso");
   const [showDespachoForm, setShowDespachoForm] = useState(false);
   const [selectedDispatch, setSelectedDispatch] = useState(null);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [dispatchToComplete, setDispatchToComplete] = useState(null);
   const [noResults, setNoResults] = useState(false);
-  const [showAlert, setShowAlert] = useState({ type: '', message: '' });
+  const [showAlert] = useState({ type: "", message: "" });
 
   const fetchDispatches = async () => {
     try {
-      const response = await axios.get("/api/despacho");
+      const response = await axios.get("http://localhost:3001/api/despacho");
       if (Array.isArray(response.data)) {
-        const dispatchesWithState = response.data.map(dispatch => ({
+        const dispatchesWithState = response.data.map((dispatch) => ({
           ...dispatch,
-          estado: isComplete(dispatch) ? "Completado" : "En Progreso"
+          estado: isComplete(dispatch) ? "Completado" : "En Progreso",
         }));
         setDispatches(dispatchesWithState);
       } else {
@@ -33,10 +33,6 @@ const DespachoNacionalTable = () => {
       console.error("Error al obtener los datos de despachos:", error);
     }
   };
-
-  useEffect(() => {
-    fetchDispatches();
-  }, []);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -72,30 +68,24 @@ const DespachoNacionalTable = () => {
     );
   };
 
-  const isInProgress = (dispatch) => {
-    return (
-      dispatch.detalles &&
-      dispatch.fecha &&
-      dispatch.hora &&
-      (!dispatch.cantidad ||
-        !dispatch.nombreChofer ||
-        !dispatch.rutChofer ||
-        !dispatch.patenteCamion ||
-        !dispatch.patenteRampla ||
-        !dispatch.numeroSellos)
-    );
-  };
-
   const filteredDispatches = dispatches.filter((dispatch) => {
     const matchesSearchTerm =
       dispatch.nombreChofer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.rutChofer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.patenteCamion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.patenteRampla?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.numeroSellos?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dispatch.patenteCamion
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      dispatch.patenteRampla
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      dispatch.numeroSellos
+        ?.toString()
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       dispatch.detalles?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.fecha?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.hora?.toLowerCase().includes(searchTerm.toLowerCase());
+      dispatch.hora?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dispatch.responsable?.toLowerCase().includes(searchTerm.toLowerCase()); // Añadido filtro por responsable
 
     const matchesFilter =
       filter === "Todos" ||
@@ -114,41 +104,15 @@ const DespachoNacionalTable = () => {
     setShowDespachoForm(true);
   };
 
-  const handleSaveClick = (dispatch) => {
-    if (isComplete(dispatch)) {
-      setDispatchToComplete(dispatch);
-      setShowConfirmModal(true);
-    } else {
-      setShowAlert({ type: 'danger', message: 'Por favor complete todos los campos antes de guardar.' });
-      setTimeout(() => setShowAlert({ type: '', message: '' }), 3000);
-    }
-  };
-
-  const confirmSave = async () => {
-    if (!dispatchToComplete) return;
-
-    try {
-      setDispatches((prevDispatches) =>
-        prevDispatches.map((d) => (d.id === dispatchToComplete.id ? { ...d, estado: "Completado" } : d))
-      );
-      setShowConfirmModal(false);
-      setShowAlert({ type: 'success', message: 'Despacho guardado exitosamente. Los datos no pueden ser deshechos.' });
-      setTimeout(() => setShowAlert({ type: '', message: '' }), 3000);
-    } catch (error) {
-      console.error("Error al guardar los datos:", error);
-      setShowAlert({ type: 'danger', message: 'Hubo un error al guardar los datos.' });
-      setTimeout(() => setShowAlert({ type: '', message: '' }), 3000);
-    }
-  };
-
   const handleFormSubmit = async (newDispatch) => {
     try {
-      await axios.post("/api/despacho", newDispatch, {
+      const dispatchWithUser = { ...newDispatch, user_id: userData?.uid, responsable: userData.username }; // Incluir user_id y responsable
+      await axios.post("http://localhost:3001/api/despacho", dispatchWithUser, {
         headers: { "Content-Type": "application/json" },
       });
       console.log("Nuevo despacho guardado correctamente");
       alert("Datos guardados");
-      setDispatches((prevDispatches) => [...prevDispatches, newDispatch]);
+      setDispatches((prevDispatches) => [...prevDispatches, dispatchWithUser]);
       setShowDespachoForm(false);
     } catch (error) {
       console.error("Error al guardar los datos:", error);
@@ -165,7 +129,7 @@ const DespachoNacionalTable = () => {
       <div className="search-filter-row">
         <Form.Control
           type="text"
-          placeholder="Buscar..."
+          placeholder="Busqueda por Filtro"
           value={searchTerm}
           onChange={handleSearch}
         />
@@ -182,7 +146,9 @@ const DespachoNacionalTable = () => {
         <Alert variant={showAlert.type}>{showAlert.message}</Alert>
       )}
       {noResults ? (
-        <div>No hay términos relacionados con su búsqueda. Intente con otro estado.</div>
+        <div>
+          No hay términos relacionados con su búsqueda. Intente con otro estado.
+        </div>
       ) : (
         <Table striped bordered hover responsive>
           <thead>
@@ -195,47 +161,47 @@ const DespachoNacionalTable = () => {
               <th>Patente Camión</th>
               <th>Patente Rampla</th>
               <th>Número Sellos</th>
+              <th>Responsable</th>
               <th>Horario Disponible</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {filteredDispatches.map((dispatch) => (
-              <tr key={`${dispatch.id}-${dispatch.agenda_diaria_id}`}>
+            {filteredDispatches.map((dispatch, index) => (
+              <tr key={`${dispatch.id || "id"}-${index}`}>
                 <td>{dispatch.detalles}</td>
-                <td>{dispatch.cantidad || '-'}</td>
+                <td>{dispatch.cantidad || "-"}</td>
                 <td>{formatDateString(dispatch.fecha)}</td>
-                <td>{dispatch.nombreChofer || '-'}</td>
-                <td>{dispatch.rutChofer || '-'}</td>
-                <td>{dispatch.patenteCamion || '-'}</td>
-                <td>{dispatch.patenteRampla || '-'}</td>
-                <td>{dispatch.numeroSellos || '-'}</td>
+                <td>{dispatch.nombreChofer || "-"}</td>
+                <td>{dispatch.rutChofer || "-"}</td>
+                <td>{dispatch.patenteCamion || "-"}</td>
+                <td>{dispatch.patenteRampla || "-"}</td>
+                <td>{dispatch.numeroSellos || "-"}</td>
+                <td>{dispatch.responsable || "-"}</td>
                 <td>{dispatch.hora}</td>
                 <td>
-                  <button
-                    onClick={() => handleEditClick(dispatch)}
-                    title="Editar"
-                    aria-label="Editar"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleSaveClick(dispatch)}
-                    title="Guardar"
-                    aria-label="Guardar"
-                    style={{ backgroundColor: "green", color: "white" }}
-                    disabled={!isComplete(dispatch)} // Deshabilitado si no está completo
-                  >
-                    <FaSave />
-                  </button>
+                  {dispatch.estado === "En Progreso" && (
+                    <button
+                      onClick={() => handleEditClick(dispatch)}
+                      title="Editar"
+                      aria-label="Editar"
+                    >
+                      <FaEdit />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
-      <Modal show={showDespachoForm} onHide={handleCloseForm} size="lg" centered>
-      <Modal.Header closeButton>
+      <Modal
+        show={showDespachoForm}
+        onHide={handleCloseForm}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
           <Modal.Title>Editar Despacho</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -251,25 +217,8 @@ const DespachoNacionalTable = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmación</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>¿Estás seguro de que deseas guardar? Esta acción no se puede deshacer.</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
-            No
-          </Button>
-          <Button variant="success" onClick={confirmSave}>
-            Sí
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };
 
 export default DespachoNacionalTable;
-

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
 import axios from "axios";
+import useAuth from '../../hooks/useAuth'; // Importar el hook de autenticación
 import InventarioForm from "../InventarioForm/inventarioForm";
 import "./inventarioTable.css"; // Asegúrate de importar los estilos
 
 const InventarioTable = () => {
+  const { userData } = useAuth(); // Obtener el usuario autenticado
   const [inventario, setInventario] = useState([]);
   const [bodegaEditada, setBodegaEditada] = useState(null);
   const [mostrarFormulario, setMostrarFormulario] = useState(false); // Estado para mostrar u ocultar el formulario
@@ -19,13 +21,17 @@ const InventarioTable = () => {
     }
   };
 
-  // Obtener el inventario desde la API al cargar el componente
   useEffect(() => {
     fetchInventario();
   }, []);
 
-  // Manejar la eliminación de una bodega
   const handleDelete = async (id) => {
+    const item = inventario.find((item) => item.id === id);
+    if (item.userId !== userData.userId) {
+      alert("No tienes permiso para eliminar este inventario.");
+      return;
+    }
+
     const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar la bodega con ID ${id}?`);
     if (isConfirmed) {
       try {
@@ -38,17 +44,20 @@ const InventarioTable = () => {
     }
   };
 
-  // Manejar la edición de una bodega
   const handleEdit = (id) => {
-    const bodega = inventario.find((item) => item.id === id);
-    setBodegaEditada(bodega);
-    setMostrarFormulario(true); // Mostrar el formulario de edición
+    const item = inventario.find((item) => item.id === id);
+    if (item.userId !== userData.userId) {
+      alert("No tienes permiso para editar este inventario.");
+      return;
+    }
+
+    setBodegaEditada(item);
+    setMostrarFormulario(true);
   };
 
   const onFormSubmit = () => {
-    // Ocultar el formulario después de enviar
     setMostrarFormulario(false);
-    fetchInventario(); // Volver a cargar el inventario después de agregar o actualizar
+    fetchInventario();
   };
 
   const handleCloseForm = () => {
@@ -67,26 +76,27 @@ const InventarioTable = () => {
           bodegaEditada={bodegaEditada} 
           setBodegaEditada={setBodegaEditada} 
           onFormSubmit={onFormSubmit} 
-          onClose={handleCloseForm} // Pasar la función de cerrar
+          onClose={handleCloseForm}
         />
       )}
       <Table striped bordered hover responsive>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Bodega</th>
             <th>Fecha</th>
             <th>Detalle</th>
+            <th>responsable</th>
             <th>Acciones</th>
+            
           </tr>
         </thead>
         <tbody>
           {inventario.map((item) => (
             <tr key={item.id}>
-              <td>{item.id}</td>
               <td>{item.nombre_bodega}</td>
-              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>
+              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>              
               <td>{item.detalle_inventario}</td>
+              <td>{item.responsable}</td>
               <td>
                 <button
                   className="btn-inventario-edit"
@@ -94,6 +104,7 @@ const InventarioTable = () => {
                 >
                   <FaEdit />
                 </button>
+                <br />
                 <button
                   className="btn-inventario-delete"
                   onClick={() => handleDelete(item.id)}

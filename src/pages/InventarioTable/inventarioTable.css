@@ -4,7 +4,7 @@
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
+  max-width: 800px; /* Aumentar el ancho máximo del formulario */
   margin: 20px auto;
   font-family: Arial, sans-serif;
 }
@@ -59,7 +59,7 @@
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
+  max-width: 1200px; /* Aumentar el ancho máximo del contenedor de la tabla */
   margin: 20px auto;
   font-family: Arial, sans-serif;
 }
@@ -91,31 +91,32 @@
 }
 
 .btn-inventario-edit {
-  background-color: green !important;
+  background-color: rgb(238, 236, 95) !important;
   color: white !important;
   border: none !important;
-  padding: 5px 10px !important;
+  padding: 15px 20px !important;
   border-radius: 4px !important;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
+  justify-content:right; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
 }
 
 .btn-inventario-edit:hover {
-  background-color: darkgreen !important;
+  background-color: rgb(242, 172, 8) !important;
 }
 
 .btn-inventario-delete {
   background-color: red !important;
   color: white !important;
   border: none !important;
-  padding: 5px 10px !important;
+  padding: 15px 20px !important;
   border-radius: 4px !important;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
 }
 
 .btn-inventario-delete:hover {
   background-color: darkred !important;
 }
+

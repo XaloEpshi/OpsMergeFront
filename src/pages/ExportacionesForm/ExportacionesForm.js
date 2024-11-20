@@ -49,7 +49,7 @@ const FormularioExportaciones = () => {
         poExportacion: String(formData.poExportacion),
         // convertir otros campos numéricos a string si es necesario
       };
-      await axios.post("/api/exportaciones", dataToSend);
+      await axios.post("http://localhost:3001/api/exportaciones", dataToSend);
       alert("Datos de exportación registrados con éxito");
       setFormData({
         mercado: "",

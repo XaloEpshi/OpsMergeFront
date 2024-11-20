@@ -12,14 +12,14 @@ const CustomCalendar = () => {
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [newEvent, setNewEvent] = useState({ title: '', start: '', end: '', allDay: false });
+  const [newEvent, setNewEvent] = useState({ title: '', start: '', end: '', allDay: false, tooltip: '' });
 
   // Función para obtener eventos
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('/api/calendario/events', {
+      const response = await axios.get('http://localhost:3001/api/calendario/events', {
         params: {
-          userId: '1', // Ajustar o eliminar según sea necesario
+          userId: '1', // Ajusta el userId según sea necesario
         },
       });
       setEvents(response.data);
@@ -27,6 +27,7 @@ const CustomCalendar = () => {
       console.error('Error fetching events:', error);
     }
   };
+  
 
   useEffect(() => {
     fetchEvents();
@@ -38,6 +39,11 @@ const CustomCalendar = () => {
       alert('El título del evento no puede estar vacío.');
       return;
     }
+    const now = moment();
+    if (moment(newEvent.start).isBefore(now, 'day')) {
+      alert('No puedes agregar un evento en una fecha pasada.');
+      return;
+    }
     try {
       const eventToSave = {
         ...newEvent,
@@ -47,31 +53,32 @@ const CustomCalendar = () => {
       };
       if (selectedEvent) {
         // Actualizar evento
-        const response = await axios.put(`/api/calendario/events/${selectedEvent.id}`, eventToSave);
+        const response = await axios.put(`http://localhost:3001/api/calendario/events/${selectedEvent.id}`, eventToSave);
         const updatedEvents = events.map(evt => (evt.id === response.data.id ? response.data : evt));
         setEvents(updatedEvents);
       } else {
         // Crear evento
-        const response = await axios.post('/api/calendario/events', eventToSave);
+        const response = await axios.post('http://localhost:3001/api/calendario/events', eventToSave);
         setEvents([...events, response.data]);
       }
       setShowModal(false);
-      setNewEvent({ title: '', start: '', end: '', allDay: false }); // Limpiar formulario
+      setNewEvent({ title: '', start: '', end: '', allDay: false, tooltip: '' }); // Limpiar formulario
       setSelectedEvent(null); // Limpiar el evento seleccionado
     } catch (error) {
       console.error('Error saving event:', error);
     }
   };
+  
 
   // Función para eliminar un evento
   const handleDeleteEvent = async () => {
     if (selectedEvent) {
       try {
-        await axios.delete(`/api/calendario/events/${selectedEvent.id}`);
+        await axios.delete(`http://localhost:3001/api/calendario/events/${selectedEvent.id}`);
         const filteredEvents = events.filter(evt => evt.id !== selectedEvent.id);
         setEvents(filteredEvents);
         setShowModal(false);
-        setNewEvent({ title: '', start: '', end: '', allDay: false }); // Limpiar formulario
+        setNewEvent({ title: '', start: '', end: '', allDay: false, tooltip: '' }); // Limpiar formulario
         setSelectedEvent(null); // Limpiar el evento seleccionado
       } catch (error) {
         console.error('Error deleting event:', error);
@@ -81,7 +88,15 @@ const CustomCalendar = () => {
 
   // Función para manejar el clic en una fecha del calendario
   const handleDateClick = (slotInfo) => {
-    setNewEvent({ title: '', start: slotInfo.start, end: slotInfo.end, allDay: slotInfo.start === slotInfo.end });
+    const today = moment().startOf('day');
+    const selectedDate = moment(slotInfo.start).startOf('day');
+
+    if (selectedDate.isBefore(today)) {
+      alert('No puedes agregar eventos en días pasados.');
+      return;
+    }
+
+    setNewEvent({ title: '', start: slotInfo.start, end: slotInfo.end, allDay: slotInfo.start === slotInfo.end, tooltip: '' });
     setShowModal(true);
     setSelectedEvent(null); // Limpiar el evento seleccionado
   };
@@ -94,6 +109,7 @@ const CustomCalendar = () => {
       start: moment(event.start).toDate(),
       end: moment(event.end).toDate(),
       allDay: event.allDay,
+      tooltip: event.tooltip
     });
     setShowModal(true);
   };
@@ -129,6 +145,7 @@ const CustomCalendar = () => {
         onSelectEvent={handleSelectEvent} // Aquí usamos la función handleSelectEvent
         onSelectSlot={handleDateClick}
         onDoubleClickEvent={event => handleDeleteEvent(event.id)}
+        tooltipAccessor="tooltip" // Añade esta línea para mostrar la descripción del evento
       />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -150,7 +167,6 @@ const CustomCalendar = () => {
               <Form.Label>Fecha y Hora de Inicio</Form.Label>
               <Form.Control
                 type="date"
-
                 value={moment(newEvent.start).format('YYYY-MM-DD')}
                 onChange={(e) => setNewEvent({ ...newEvent, start: moment(e.target.value + ' ' + moment(newEvent.start).format('HH:mm')).toDate() })}
               />

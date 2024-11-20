@@ -10,7 +10,8 @@ const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onCl
     patenteCamion: '',
     patenteRampla: '',
     numeroSellos: '',
-    agenda_diaria_id: ''
+    agenda_diaria_id: '',
+    responsable:""
   });
 
   useEffect(() => {
@@ -22,7 +23,8 @@ const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onCl
         patenteCamion: dispatch.patenteCamion || '',
         patenteRampla: dispatch.patenteRampla || '',
         numeroSellos: dispatch.numeroSellos || '',
-        agenda_diaria_id: dispatch.agenda_id || ''
+        agenda_diaria_id: dispatch.agenda_id || '',
+        responsable:dispatch.responsable || ''
       });
     }
   }, [dispatch]);
@@ -135,11 +137,24 @@ const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onCl
           placeholder="ID de la Agenda Diaria"
           required
         />
-      </div>
-
-      <button type="submit" className="btn-submit">Guardar</button>
-    </form>
-  );
-};
-
-export default DespachoNacionalForm;
+        </div>
+  
+        <div className="form-group">
+          <label htmlFor="responsable">Responsable:</label>
+          <input
+            type="text"
+            name="responsable"
+            value={despacho.responsable}
+            onChange={handleChange}
+            placeholder="Responsable"
+            required
+          />
+        </div>
+  
+        <button type="submit" className="btn-submit">Guardar</button>
+      </form>
+    );
+  };
+  
+  export default DespachoNacionalForm;
+  

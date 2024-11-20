@@ -4,6 +4,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa'; // Importar iconos de react-ic
 import './AgendaDiaria.css';
 
 const AgendaDiaria = () => {
+  // Estados para manejar datos y estados de la aplicación
   const [despachos, setDespachos] = useState([]);
   const [nuevoDespacho, setNuevoDespacho] = useState({
     fecha: '',
@@ -12,67 +13,117 @@ const AgendaDiaria = () => {
   });
   const [editando, setEditando] = useState(false);
   const [idEdicion, setIdEdicion] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
 
+  // Función para obtener los despachos de la API
   const obtenerDespachos = () => {
-    axios.get('/api/agenda/')
+    setLoading(true);
+    axios.get('http://localhost:3001/api/agenda/')
       .then(response => {
-        // Formatear las fechas antes de actualizar el estado
-        const formatearFechas = response.data.map(despacho => ({
+        // Formatear fechas y horas
+        const formatearFechasHoras = response.data.map(despacho => ({
           ...despacho,
-          fecha: new Date(despacho.fecha).toLocaleDateString(), // Formatear la fecha
+          fecha: new Date(despacho.fecha).toISOString().split('T')[0], // Formato yyyy-MM-dd
+          hora: despacho.hora.slice(0, 5) // Formato HH:mm
         }));
-        setDespachos(formatearFechas);
+        setDespachos(formatearFechasHoras);
+        setLoading(false);
+        setTimeout(() => setMensaje(null), 3000); // Ocultar mensaje después de 3 segundos
       })
       .catch(error => {
-        console.error('Hubo un error al obtener los eventos', error);
+        console.error('Hubo un error al obtener las agendas', error);
+        setError('Error al obtener las agendas');
+        setLoading(false);
+        setTimeout(() => setError(null), 3000); // Ocultar mensaje de error después de 3 segundos
       });
   };
 
+  // useEffect para obtener despachos al cargar el componente
   useEffect(() => {
-    obtenerDespachos(); // Obtener todos los eventos al montar el componente
+    obtenerDespachos();
   }, []);
 
+  // Función para agregar o editar un despacho
   const agregarDespacho = (e) => {
     e.preventDefault();
 
+    // Validación de campos completos
+    if (!nuevoDespacho.fecha || !nuevoDespacho.hora || !nuevoDespacho.detalles) {
+      setError('Por favor, completa todos los campos');
+      return;
+    }
+
+    setLoading(true); // Establecer estado de cargando
+    setError(null);
+    setMensaje(null);
+
     const despacho = { ...nuevoDespacho };
 
+    // Si estamos editando, enviar una solicitud PUT
     if (editando) {
-      axios.put(`/api/agenda/${idEdicion}`, despacho)
+      axios.put(`http://localhost:3001/api/agenda/${idEdicion}`, despacho)
         .then(() => {
-          obtenerDespachos(); // Actualizar la lista de despachos después de editar
+          obtenerDespachos();
           setNuevoDespacho({ fecha: '', hora: '', detalles: '' });
           setEditando(false);
           setIdEdicion(null);
+          setMensaje('Agenda editada correctamente');
+          setLoading(false); // Detener estado de cargando
         })
         .catch(error => {
-          console.error('Hubo un error al actualizar el evento', error);
+          console.error('Hubo un error al actualizar la agenda', error);
+          setError('Error al actualizar el evento');
+          setLoading(false); // Detener estado de cargando
         });
     } else {
-      axios.post('/api/agenda', despacho)
+      // Si estamos agregando un nuevo despacho, enviar una solicitud POST
+      axios.post('http://localhost:3001/api/agenda', despacho)
         .then(() => {
-          obtenerDespachos(); // Actualizar la lista de despachos después de agregar
+          obtenerDespachos();
           setNuevoDespacho({ fecha: '', hora: '', detalles: '' });
+          setMensaje('Evento agregado correctamente');
+          setLoading(false); // Detener estado de cargando
         })
         .catch(error => {
-          console.error('Hubo un error al agregar el evento', error);
+          console.error('Hubo un error al agregar la agenda', error);
+          setError('Error al agregar el evento');
+          setLoading(false); // Detener estado de cargando
         });
     }
   };
 
+  // Función para eliminar un despacho
   const eliminarDespacho = (id) => {
-    axios.delete(`/api/agenda/${id}`)
+    setLoading(true);
+    setError(null);
+    setMensaje(null);
+    
+    axios.delete(`http://localhost:3001/api/agenda/${id}`)
       .then(() => {
-        obtenerDespachos(); // Actualizar la lista de despachos después de eliminar
+        obtenerDespachos();
+        setMensaje('Agenda Eliminada correctamente');
+        setLoading(false);
       })
       .catch(error => {
-        console.error('Hubo un error al eliminar el evento', error);
+        console.error('Hubo un error al eliminar la agenda', error);
+        setError('No puedes Eliminar esta Agenda porque tiene relacionado despachos');
+        setLoading(false);
       });
   };
 
-  const editarDespacho = (index) => {
-    const despacho = despachos[index];
-    setNuevoDespacho(despacho);
+  // Función para preparar la edición de un despacho
+  const editarDespacho = (id) => {
+    const confirmacion = window.confirm('¿Estás seguro de que deseas editar los datos de esta agenda?');
+    if (!confirmacion) return;
+
+    const despacho = despachos.find(d => d.id === id);
+    setNuevoDespacho({
+      ...despacho,
+      fecha: new Date(despacho.fecha).toISOString().split('T')[0], // Asegurar que la fecha está en formato yyyy-MM-dd
+      hora: despacho.hora.slice(0, 5) // Formato HH:mm
+    });
     setEditando(true);
     setIdEdicion(despacho.id);
   };
@@ -81,6 +132,8 @@ const AgendaDiaria = () => {
     <div className="agenda-diaria">
       <h1>Agenda Diaria de Despachos</h1>
       <form onSubmit={agregarDespacho}>
+        {error && <p className="error">{error}</p>}
+        {mensaje && <p className="mensaje">{mensaje}</p>}
         <input 
           type="date" 
           value={nuevoDespacho.fecha}
@@ -101,8 +154,11 @@ const AgendaDiaria = () => {
           required 
         />
         <br/>
-        <button type="submit">{editando ? 'Actualizar Despacho' : 'Agregar Despacho'}</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Cargando...' : (editando ? 'Actualizar Despacho' : 'Agregar Despacho')}
+        </button>
       </form>
+      {loading && <p>Cargando...</p>}
       <table className="table">
         <thead>
           <tr>
@@ -113,23 +169,27 @@ const AgendaDiaria = () => {
           </tr>
         </thead>
         <tbody>
-          {despachos.map((despacho, index) => (
-            <tr key={index}>
+          {despachos.map((despacho) => (
+            <tr key={despacho.id}>
               <td>{despacho.fecha}</td>
               <td>{despacho.hora}</td>
               <td>{despacho.detalles}</td>
               <td>
                 <button 
-                  onClick={() => editarDespacho(index)} 
+                  className="edit-button"
+                  onClick={() => editarDespacho(despacho.id)} 
                   title="Editar"
                   aria-label="Editar"
+                  disabled={loading}
                 >
                   <FaEdit />
                 </button>
                 <button 
+                  className="delete-button"
                   onClick={() => eliminarDespacho(despacho.id)} 
                   title="Eliminar"
                   aria-label="Eliminar"
+                  disabled={loading}
                 >
                   <FaTrash />
                 </button>
@@ -143,3 +203,4 @@ const AgendaDiaria = () => {
 };
 
 export default AgendaDiaria;
+

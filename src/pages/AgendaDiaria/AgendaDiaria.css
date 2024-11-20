@@ -60,13 +60,96 @@
 
 .table button {
   padding: 5px 10px;
-  background-color: #007bff;
-  color: white;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.table button:hover {
-  background-color: #0056b3;
+.table .edit-button {
+  background-color: #ffc107; /* Color amarillo para el botón de editar */
+  color: black; /* Texto negro */
+}
+
+.table .edit-button:hover {
+  background-color: #e0a800; /* Color amarillo oscuro al hacer hover */
+}
+
+.table .delete-button {
+  background-color: #dc3545; /* Color rojo para el botón de eliminar */
+  color: white;
+}
+
+.table .delete-button:hover {
+  background-color: #c82333; /* Color rojo oscuro al hacer hover */
+}
+
+/* Mensajes de éxito y error */
+.error {
+  color: #ff4d4f; /* Color rojo llamativo para errores */
+  font-weight: bold;
+  margin: 10px 0;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.mensaje {
+  color: #28a745; /* Color verde llamativo para éxitos */
+  font-weight: bold;
+  margin: 10px 0;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Efectos al hacer hover en filas de la tabla */
+.table tbody tr:hover {
+  background-color: #e6f7ff; /* Color azul claro */
+}
+
+/* Estilo para inputs y botones */
+.agenda-diaria form input:focus,
+.agenda-diaria form button:focus {
+  outline: 3px solid #28a745; /* Borde verde llamativo al hacer focus */
+}
+
+.table button:focus {
+  outline: 3px solid #28a745; /* Borde verde llamativo al hacer focus */
+}
+
+
+/* src/pages/AgendaDiaria/AgendaDiaria.css */
+
+/* Mensajes de éxito y error */
+.error {
+  color: #ff4d4f; /* Color rojo llamativo para errores */
+  font-weight: bold;
+  margin: 10px 0;
+  animation: fadeOut 3s ease-in-out forwards;
+}
+
+.mensaje {
+  color: #28a745; /* Color verde llamativo para éxitos */
+  font-weight: bold;
+  margin: 10px 0;
+  animation: fadeOut 3s ease-in-out forwards;
+}
+
+/* Animación */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

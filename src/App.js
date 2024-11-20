@@ -9,6 +9,7 @@ import DespachoNacionalForm from "./pages/DespachoNacionalForm/despachoNacionalF
 import AgendaDiaria from "./pages/AgendaDiaria/AgendaDiaria";
 import InventarioTable from "./pages/InventarioTable/inventarioTable";
 import ExportacionesTable from "./pages/ExportacionesTable/ExportacionesTable";
+import RegistroActividades from "./pages/RegistroActividades/RegistroActividades";
 import useAuth from './hooks/useAuth';
 
 const App = () => {
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="/agenda-diaria" element={isAuthenticated ? <AgendaDiaria /> : <Navigate to="/" />} />
           <Route path="/foro-discusion" element={isAuthenticated ? <ForoDiscusion /> : <Navigate to="/" />} />
           <Route path="/despacho-nacional-form" element={isAuthenticated ? <DespachoNacionalForm username={userData.username} /> : <Navigate to="/" />} />
+          <Route path="/registro-actividades" element={isAuthenticated ? <RegistroActividades /> : <Navigate to="/" />} />
         </Routes>
       </div>
       <Footer />
