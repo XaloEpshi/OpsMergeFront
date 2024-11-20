@@ -20,7 +20,7 @@ const AgendaDiaria = () => {
   // Función para obtener los despachos de la API
   const obtenerDespachos = () => {
     setLoading(true);
-    axios.get('http://localhost:3001/api/agenda/')
+    axios.get('http://opsmergeback-production.up.railway.app/api/agenda/')
       .then(response => {
         // Formatear fechas y horas
         const formatearFechasHoras = response.data.map(despacho => ({
