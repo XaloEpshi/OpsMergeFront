@@ -36,7 +36,7 @@ const RegistroActividades = () => {
 
   const actividadesFiltradas = actividades.filter((actividad) => {
     return (
-      (!filtroUsuario || (actividad.user_id && actividad.user_id.includes(filtroUsuario)) || (actividad.responsable && actividad.responsable.includes(filtroUsuario))) &&
+      (!filtroUsuario || (actividad.user_id && actividad.user_id.includes(filtroUsuario))) &&
       (!filtroFecha || actividad.fecha_hora.includes(filtroFecha))
     );
   });
@@ -76,7 +76,7 @@ const RegistroActividades = () => {
               <td>{actividad.actividad}</td>
               <td>{new Date(actividad.fecha_hora).toLocaleString()}</td>
               <td>{actividad.descripcion}</td>
-              <td>{actividad.user_id || actividad.responsable}</td>
+              <td>{actividad.user_id}</td>
             </tr>
           ))}
         </tbody>

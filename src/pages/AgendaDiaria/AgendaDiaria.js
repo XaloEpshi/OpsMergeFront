@@ -20,15 +20,23 @@ const AgendaDiaria = () => {
   // Función para obtener los despachos de la API
   const obtenerDespachos = () => {
     setLoading(true);
-    axios.get('https://opsmergeback-production.up.railway.app/api/agenda/')
+    axios.get('https://opsmergeback-production.up.railway.app/api/agenda')
       .then(response => {
-        // Formatear fechas y horas
-        const formatearFechasHoras = response.data.map(despacho => ({
-          ...despacho,
-          fecha: new Date(despacho.fecha).toISOString().split('T')[0], // Formato yyyy-MM-dd
-          hora: despacho.hora.slice(0, 5) // Formato HH:mm
-        }));
-        setDespachos(formatearFechasHoras);
+        // Imprime la respuesta para verificar el formato de los datos
+        console.log(response.data);
+        
+        if (Array.isArray(response.data.data)) {
+          // Formatear fechas y horas si response.data.data es un array
+          const formatearFechasHoras = response.data.data.map(despacho => ({
+            ...despacho,
+            fecha: new Date(despacho.fecha).toISOString().split('T')[0], // Formato yyyy-MM-dd
+            hora: despacho.hora.slice(0, 5) // Formato HH:mm
+          }));
+          setDespachos(formatearFechasHoras);
+        } else {
+          setError('Formato de datos no válido');
+        }
+
         setLoading(false);
         setTimeout(() => setMensaje(null), 3000); // Ocultar mensaje después de 3 segundos
       })
@@ -99,7 +107,7 @@ const AgendaDiaria = () => {
     setLoading(true);
     setError(null);
     setMensaje(null);
-    
+
     axios.delete(`https://opsmergeback-production.up.railway.app/api/agenda/${id}`)
       .then(() => {
         obtenerDespachos();
@@ -203,4 +211,3 @@ const AgendaDiaria = () => {
 };
 
 export default AgendaDiaria;
-
