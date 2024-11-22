@@ -2,18 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
 import axios from "axios";
-import useAuth from '../../hooks/useAuth';
-import { auth } from '../../firebase';
 import InventarioForm from "../InventarioForm/inventarioForm";
-import "./inventarioTable.css";
+import "./inventarioTable.css"; // Asegúrate de importar los estilos
 
 const InventarioTable = () => {
-  const { userData } = useAuth();
   const [inventario, setInventario] = useState([]);
   const [bodegaEditada, setBodegaEditada] = useState(null);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarFormulario, setMostrarFormulario] = useState(false); // Estado para mostrar u ocultar el formulario
 
-  // Obtener el inventario al cargar el componente
   const fetchInventario = async () => {
     try {
       const response = await axios.get("https://opsmergeback-production.up.railway.app/api/bodegas");
@@ -27,26 +23,11 @@ const InventarioTable = () => {
     fetchInventario();
   }, []);
 
-  // Eliminar inventario si el usuario es el responsable
   const handleDelete = async (id) => {
-    const item = inventario.find((item) => item.id === id);
-    console.log("User attempting to delete:", userData.name);
-    console.log("Item responsible:", item.responsable);
-    
-    if (item.responsable !== userData.name) {
-      alert("Solo el responsable puede Eliminar el inventario.");
-      return;
-    }
-  
     const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar la bodega con ID ${id}?`);
     if (isConfirmed) {
       try {
-        const token = await auth.currentUser.getIdToken(true);
-        await axios.delete(`https://opsmergeback-production.up.railway.app/api/bodegas/${id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        await axios.delete(`https://opsmergeback-production.up.railway.app/api/bodegas/${id}`);
         setInventario(inventario.filter((item) => item.id !== id));
         console.log(`Bodega con ID ${id} eliminada`);
       } catch (err) {
@@ -54,25 +35,16 @@ const InventarioTable = () => {
       }
     }
   };
-  
+
   const handleEdit = (id) => {
     const item = inventario.find((item) => item.id === id);
-    console.log("User attempting to edit:", userData.name);
-    console.log("Item responsible:", item.responsable);
-  
-    if (item.responsable !== userData.name) {
-      alert("Solo el responsable puede Editar el inventario.");
-      return;
-    }
-  
     setBodegaEditada(item);
     setMostrarFormulario(true);
   };
-  
 
   const onFormSubmit = () => {
-    setMostrarFormulario(false); // Cerrar formulario después de enviar
-    fetchInventario(); // Actualizar inventario después de editar
+    setMostrarFormulario(false);
+    fetchInventario();
   };
 
   const handleCloseForm = () => {
@@ -108,7 +80,7 @@ const InventarioTable = () => {
           {inventario.map((item) => (
             <tr key={item.id}>
               <td>{item.nombre_bodega}</td>
-              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>
+              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>              
               <td>{item.detalle_inventario}</td>
               <td>{item.responsable}</td>
               <td>

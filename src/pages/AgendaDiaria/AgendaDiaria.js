@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash } from 'react-icons/fa'; // Importar iconos de react-icons
 import './AgendaDiaria.css';
 
 const AgendaDiaria = () => {
+  // Estados para manejar datos y estados de la aplicación
   const [despachos, setDespachos] = useState([]);
   const [nuevoDespacho, setNuevoDespacho] = useState({
     fecha: '',
@@ -16,47 +17,51 @@ const AgendaDiaria = () => {
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState(null);
 
+  // Función para obtener los despachos de la API
   const obtenerDespachos = () => {
     setLoading(true);
     axios.get('https://opsmergeback-production.up.railway.app/api/agenda/')
       .then(response => {
-        console.log(response.data); // Verifica la estructura aquí
-        const data = response.data.data; // Mapea correctamente a response.data.data
-        if (!Array.isArray(data)) {
-          throw new Error('La respuesta de la API no es un arreglo.');
-        }
-        const formatearFechasHoras = data.map(despacho => ({
+        // Formatear fechas y horas
+        const formatearFechasHoras = response.data.map(despacho => ({
           ...despacho,
-          fecha: new Date(despacho.fecha).toISOString().split('T')[0],
-          hora: despacho.hora.slice(0, 5),
+          fecha: new Date(despacho.fecha).toISOString().split('T')[0], // Formato yyyy-MM-dd
+          hora: despacho.hora.slice(0, 5) // Formato HH:mm
         }));
         setDespachos(formatearFechasHoras);
         setLoading(false);
+        setTimeout(() => setMensaje(null), 3000); // Ocultar mensaje después de 3 segundos
       })
       .catch(error => {
         console.error('Hubo un error al obtener las agendas', error);
         setError('Error al obtener las agendas');
         setLoading(false);
+        setTimeout(() => setError(null), 3000); // Ocultar mensaje de error después de 3 segundos
       });
   };
 
+  // useEffect para obtener despachos al cargar el componente
   useEffect(() => {
     obtenerDespachos();
   }, []);
 
+  // Función para agregar o editar un despacho
   const agregarDespacho = (e) => {
     e.preventDefault();
+
+    // Validación de campos completos
     if (!nuevoDespacho.fecha || !nuevoDespacho.hora || !nuevoDespacho.detalles) {
       setError('Por favor, completa todos los campos');
       return;
     }
 
-    setLoading(true);
+    setLoading(true); // Establecer estado de cargando
     setError(null);
     setMensaje(null);
 
     const despacho = { ...nuevoDespacho };
 
+    // Si estamos editando, enviar una solicitud PUT
     if (editando) {
       axios.put(`https://opsmergeback-production.up.railway.app/api/agenda/${idEdicion}`, despacho)
         .then(() => {
@@ -65,33 +70,32 @@ const AgendaDiaria = () => {
           setEditando(false);
           setIdEdicion(null);
           setMensaje('Agenda editada correctamente');
-          setLoading(false);
+          setLoading(false); // Detener estado de cargando
         })
         .catch(error => {
           console.error('Hubo un error al actualizar la agenda', error);
           setError('Error al actualizar el evento');
-          setLoading(false);
+          setLoading(false); // Detener estado de cargando
         });
     } else {
+      // Si estamos agregando un nuevo despacho, enviar una solicitud POST
       axios.post('https://opsmergeback-production.up.railway.app/api/agenda', despacho)
         .then(() => {
           obtenerDespachos();
           setNuevoDespacho({ fecha: '', hora: '', detalles: '' });
           setMensaje('Evento agregado correctamente');
-          setLoading(false);
+          setLoading(false); // Detener estado de cargando
         })
         .catch(error => {
           console.error('Hubo un error al agregar la agenda', error);
           setError('Error al agregar el evento');
-          setLoading(false);
+          setLoading(false); // Detener estado de cargando
         });
     }
   };
 
+  // Función para eliminar un despacho
   const eliminarDespacho = (id) => {
-    const confirmacion = window.confirm('¿Estás seguro de que deseas eliminar esta agenda?');
-    if (!confirmacion) return;
-
     setLoading(true);
     setError(null);
     setMensaje(null);
@@ -99,16 +103,17 @@ const AgendaDiaria = () => {
     axios.delete(`https://opsmergeback-production.up.railway.app/api/agenda/${id}`)
       .then(() => {
         obtenerDespachos();
-        setMensaje('Agenda eliminada correctamente');
+        setMensaje('Agenda Eliminada correctamente');
         setLoading(false);
       })
       .catch(error => {
         console.error('Hubo un error al eliminar la agenda', error);
-        setError('No puedes eliminar esta agenda porque está relacionada con despachos');
+        setError('No puedes Eliminar esta Agenda porque tiene relacionado despachos');
         setLoading(false);
       });
   };
 
+  // Función para preparar la edición de un despacho
   const editarDespacho = (id) => {
     const confirmacion = window.confirm('¿Estás seguro de que deseas editar los datos de esta agenda?');
     if (!confirmacion) return;
@@ -197,4 +202,5 @@ const AgendaDiaria = () => {
   );
 };
 
-export default AgendaDiaria;//Codigo funcional
+export default AgendaDiaria;
+
