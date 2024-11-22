@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Table, Form, Button, Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { faSave } from "@fortawesome/free-solid-svg-icons";
 import "./ExportacionesTable.css";
 
@@ -14,7 +15,9 @@ const ExportacionesTable = ({ user }) => {
 
   const fetchExportaciones = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/exportaciones");
+      const response = await axios.get(
+        "https://opsmergeback-production.up.railway.app/api/exportaciones"
+      );
       if (Array.isArray(response.data)) {
         setExportaciones(response.data);
       } else {
@@ -40,18 +43,31 @@ const ExportacionesTable = ({ user }) => {
     setShowModal(true);
   };
 
+  const formatFecha = (fecha) => {
+    const date = new Date(fecha);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSave = async () => {
     const formattedExportacion = {
       ...editingExportacion,
       fechaCarga: editingExportacion.fechaCarga
-        ? new Date(editingExportacion.fechaCarga).toISOString().split("T")[0]
+        ? new Date(editingExportacion.fechaCarga).toLocaleDateString("en-CA")
         : null,
     };
 
     try {
-      const response = await axios.put(`http://localhost:3001/api/exportaciones/${editingExportacion.id}`, formattedExportacion);
+      const response = await axios.put(
+        `https://opsmergeback-production.up.railway.app/api/exportaciones/${editingExportacion.id}`,
+        formattedExportacion
+      );
       setExportaciones(
-        exportaciones.map((exp) => (exp.id === editingExportacion.id ? response.data : exp))
+        exportaciones.map((exp) =>
+          exp.id === editingExportacion.id ? response.data : exp
+        )
       );
       setShowModal(false);
     } catch (error) {
@@ -60,17 +76,22 @@ const ExportacionesTable = ({ user }) => {
   };
 
   const handleComplete = async (id) => {
-    try {
-      await axios.put(`http://localhost:3001/api/exportaciones/status/${id}`, { status: "Completado" });
-      setExportaciones(
-        exportaciones.map((exp) => (exp.id === id ? { ...exp, status: "Completado" } : exp))
-      );
-      alert("Estado de la exportación actualizado a 'Completado' con éxito.");
-    } catch (error) {
-      console.error("Error al completar la exportación:", error);
-      alert("Error al completar la exportación. Inténtelo de nuevo.");
+    const confirmChange = window.confirm("Una vez cambiado el status a DESPACHADO los datos no podrán editarse. ¿Desea continuar?");
+    
+    if (confirmChange) {
+      try {
+        await axios.put(`https://opsmergeback-production.up.railway.app/api/exportaciones/status/${id}`, { status: "Despachado" });
+        setExportaciones(
+          exportaciones.map((exp) => (exp.id === id ? { ...exp, status: "Despachado" } : exp))
+        );
+        alert("Estado de la exportación actualizado a 'Despachado' con éxito.");
+      } catch (error) {
+        console.error("Error al completar la exportación:", error);
+        alert("Error al completar la exportación. Inténtelo de nuevo.");
+      }
     }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -78,20 +99,28 @@ const ExportacionesTable = ({ user }) => {
   };
 
   const filteredExportaciones = Array.isArray(exportaciones)
-    ? exportaciones.filter((exp) => {
-        const lowerSearchTerm = searchTerm.toLowerCase();
-        const lowerFilter = filter.toLowerCase();
+    ? exportaciones
+        .filter((exp) => {
+          const lowerSearchTerm = searchTerm.toLowerCase();
+          const lowerFilter = filter.toLowerCase();
 
-        if (lowerFilter !== "all" && exp.destino.toLowerCase() !== lowerFilter) {
-          return false;
-        }
+          if (
+            lowerFilter !== "all" &&
+            exp.destino.toLowerCase() !== lowerFilter
+          ) {
+            return false;
+          }
 
-        return (
-          exp.destino?.toLowerCase().includes(lowerSearchTerm) ||
-          exp.conductor?.toLowerCase().includes(lowerSearchTerm) ||
-          exp.patenteCamion?.toLowerCase().includes(lowerSearchTerm)
-        );
-      })
+          return (
+            exp.destino?.toLowerCase().includes(lowerSearchTerm) ||
+            exp.conductor?.toLowerCase().includes(lowerSearchTerm) ||
+            exp.patenteCamion?.toLowerCase().includes(lowerSearchTerm)
+          );
+        })
+        .map((exp) => ({
+          ...exp,
+          fechaCarga: exp.fechaCarga ? formatFecha(exp.fechaCarga) : "",
+        }))
     : [];
 
   return (
@@ -181,18 +210,24 @@ const ExportacionesTable = ({ user }) => {
               <td>{exp.poLocal}</td>
               <td>{exp.numeroInterno}</td>
               <td>
-                <Button variant="warning" onClick={() => handleEdit(exp)}>
-                  Editar
+                <Button variant="warning" onClick={() => handleEdit(exp)}
+                  title="Presione para editar"
+                  >
+                  <FontAwesomeIcon icon={faEdit} /> Editar
                 </Button>
-                <Button variant="success" onClick={() => handleComplete(exp.id)}>
-                  Completar
+                <br />
+                <Button
+                  variant="success"
+                  onClick={() => handleComplete(exp.id)}
+                  title="Presione para cambiar el estado a COMPLETADO"
+                >
+                  <FontAwesomeIcon icon={faCheck} /> Status
                 </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
-
       {editingExportacion && (
         <Modal show={showModal} onHide={() => setShowModal(false)}>
           <Modal.Header closeButton>
@@ -205,8 +240,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="mercado"
-                  value={editingExportacion.mercado || ''}
+                  value={editingExportacion.mercado || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formMaterial">
@@ -214,8 +250,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="material"
-                  value={editingExportacion.material || ''}
+                  value={editingExportacion.material || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formDescripcion">
@@ -223,8 +260,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="descripcion"
-                  value={editingExportacion.descripcion || ''}
+                  value={editingExportacion.descripcion || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formFechaCarga">
@@ -232,8 +270,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="date"
                   name="fechaCarga"
-                  value={editingExportacion.fechaCarga || ''}
+                  value={editingExportacion.fechaCarga || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formObservacion">
@@ -241,8 +280,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="observacion"
-                  value={editingExportacion.observacion || ''}
+                  value={editingExportacion.observacion || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPallet">
@@ -250,8 +290,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="number"
                   name="pallet"
-                  value={editingExportacion.pallet || ''}
+                  value={editingExportacion.pallet || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formCajas">
@@ -259,8 +300,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="number"
                   name="cajas"
-                  value={editingExportacion.cajas || ''}
+                  value={editingExportacion.cajas || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPoExportacion">
@@ -268,8 +310,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="poExportacion"
-                  value={editingExportacion.poExportacion || ''}
+                  value={editingExportacion.poExportacion || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formConductor">
@@ -277,8 +320,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="conductor"
-                  value={editingExportacion.conductor || ''}
+                  value={editingExportacion.conductor || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formRut">
@@ -286,8 +330,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="rut"
-                  value={editingExportacion.rut || ''}
+                  value={editingExportacion.rut || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formTelefono">
@@ -295,8 +340,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="telefono"
-                  value={editingExportacion.telefono || ''}
+                  value={editingExportacion.telefono || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formContenedor">
@@ -304,8 +350,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="contenedor"
-                  value={editingExportacion.contenedor || ''}
+                  value={editingExportacion.contenedor || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formSelloNaviero">
@@ -313,8 +360,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="selloNaviero"
-                  value={editingExportacion.selloNaviero || ''}
+                  value={editingExportacion.selloNaviero || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formStatus">
@@ -322,8 +370,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="status"
-                  value={editingExportacion.status || ''}
+                  value={editingExportacion.status || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formTransporte">
@@ -331,8 +380,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="transporte"
-                  value={editingExportacion.transporte || ''}
+                  value={editingExportacion.transporte || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formTipoContenedor">
@@ -340,8 +390,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="tipoContenedor"
-                  value={editingExportacion.tipoContenedor || ''}
+                  value={editingExportacion.tipoContenedor || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formCentroCarga">
@@ -349,8 +400,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="centroCarga"
-                  value={editingExportacion.centroCarga || ''}
+                  value={editingExportacion.centroCarga || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formNave">
@@ -358,8 +410,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="nave"
-                  value={editingExportacion.nave || ''}
+                  value={editingExportacion.nave || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPol">
@@ -367,8 +420,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="pol"
-                  value={editingExportacion.pol || ''}
+                  value={editingExportacion.pol || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formNaviera">
@@ -376,8 +430,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="naviera"
-                  value={editingExportacion.naviera || ''}
+                  value={editingExportacion.naviera || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formOperador">
@@ -385,8 +440,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="operador"
-                  value={editingExportacion.operador || ''}
+                  value={editingExportacion.operador || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formTurno">
@@ -394,8 +450,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="turno"
-                  value={editingExportacion.turno || ''}
+                  value={editingExportacion.turno || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPatenteRampla">
@@ -403,8 +460,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="patenteRampla"
-                  value={editingExportacion.patenteRampla || ''}
+                  value={editingExportacion.patenteRampla || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPatenteCamion">
@@ -412,8 +470,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="patenteCamion"
-                  value={editingExportacion.patenteCamion || ''}
+                  value={editingExportacion.patenteCamion || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formDestino">
@@ -421,8 +480,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="destino"
-                  value={editingExportacion.destino || ''}
+                  value={editingExportacion.destino || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formSelloEmpresa">
@@ -430,8 +490,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="selloEmpresa"
-                  value={editingExportacion.selloEmpresa || ''}
+                  value={editingExportacion.selloEmpresa || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formDelivery">
@@ -439,8 +500,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="delivery"
-                  value={editingExportacion.delivery || ''}
+                  value={editingExportacion.delivery || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formPoLocal">
@@ -448,8 +510,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="poLocal"
-                  value={editingExportacion.poLocal || ''}
+                  value={editingExportacion.poLocal || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
               <Form.Group controlId="formNumeroInterno">
@@ -457,8 +520,9 @@ const ExportacionesTable = ({ user }) => {
                 <Form.Control
                   type="text"
                   name="numeroInterno"
-                  value={editingExportacion.numeroInterno || ''}
+                  value={editingExportacion.numeroInterno || ""}
                   onChange={handleChange}
+                  disabled={editingExportacion.status === "Despachado"}
                 />
               </Form.Group>
             </Form>
@@ -478,5 +542,3 @@ const ExportacionesTable = ({ user }) => {
 };
 
 export default ExportacionesTable;
-
-  

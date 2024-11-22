@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Spinner, Alert, Button, Modal, Form } from 'react-bootstrap';
 import { FaEdit, FaSyncAlt } from 'react-icons/fa';
+import useAuth from '../../hooks/useAuth'; // Supongo que tienes un hook de autenticación similar
 
 const TareasDiariasTable = () => {
+  const { userData } = useAuth(); // Obtener datos del usuario autenticado
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,7 +14,7 @@ const TareasDiariasTable = () => {
 
   const fetchTareas = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/tareas');
+      const response = await axios.get('https://opsmergeback-production.up.railway.app/api/tareas');
       setTareas(response.data);
     } catch (error) {
       console.error('Error al obtener las tareas:', error);
@@ -36,6 +38,10 @@ const TareasDiariasTable = () => {
   };
 
   const handleEditClick = (tarea) => {
+    if (tarea.responsable !== userData.username) {
+      alert("Solo el responsable de la tarea puede comentarla.");
+      return;
+    }
     setCurrentTarea({
       ...tarea,
       fecha_inicio: formatDate(tarea.fecha_inicio),
@@ -58,7 +64,7 @@ const TareasDiariasTable = () => {
     e.preventDefault();
     try {
       const updatedTarea = { ...currentTarea, estado_tarea: "Completado" }; // Cambiar estado a Completado
-      await axios.put(`http://localhost:3001/api/tareas/${currentTarea.id}`, updatedTarea);
+      await axios.put(`https://opsmergeback-production.up.railway.app/api/tareas/${currentTarea.id}`, updatedTarea);
       setTareas((prevTareas) =>
         prevTareas.map((tarea) =>
           tarea.id === currentTarea.id ? updatedTarea : tarea
@@ -129,7 +135,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.nombre_tarea}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.nombre_tarea}
+                  disabled
                 />
               </Form.Group>
               <Form.Group controlId="descripcion">
@@ -140,7 +146,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.descripcion}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.descripcion}
+                  disabled
                 />
               </Form.Group>
               <Form.Group controlId="responsable">
@@ -151,7 +157,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.responsable}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.responsable}
+                  disabled
                 />
               </Form.Group>
               <Form.Group controlId="estadoTarea">
@@ -162,7 +168,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.estado_tarea}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.estado_tarea}
+                  disabled
                 >
                   <option value="Pendiente">Pendiente</option>
                   <option value="Completado">Completado</option>
@@ -176,7 +182,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.fecha_inicio}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.fecha_inicio}
+                  disabled
                 />
               </Form.Group>
               <Form.Group controlId="fechaTermino">
@@ -187,7 +193,7 @@ const TareasDiariasTable = () => {
                   value={currentTarea.fecha_termino}
                   onChange={handleChange}
                   required
-                  disabled={!!currentTarea.fecha_termino}
+                  disabled
                 />
               </Form.Group>
               <Form.Group controlId="comentarios">

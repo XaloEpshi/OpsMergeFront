@@ -11,7 +11,7 @@ const RegistroActividades = () => {
   useEffect(() => {
     const fetchActividades = async () => {
       try {
-        const response = await axios.get('/api/activities');
+        const response = await axios.get('https://opsmergeback-production.up.railway.app/api/activities');
         // Verificar si la respuesta es un array
         if (Array.isArray(response.data)) {
           setActividades(response.data);

@@ -38,13 +38,11 @@ const TareasDiariasForm = () => {
 
     const fetchTareas = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/tareas");
+        const response = await axios.get("https://opsmergeback-production.up.railway.app/api/tareas");
         setTareas(response.data);
       } catch (error) {
         console.error("Error al obtener las tareas:", error);
-        setError(
-          "No se pudieron cargar las tareas. Por favor, intenta nuevamente más tarde."
-        );
+        setError("No se pudieron cargar las tareas. Por favor, intenta nuevamente más tarde.");
       } finally {
         setLoading(false);
       }
@@ -70,7 +68,7 @@ const TareasDiariasForm = () => {
         nombre_tarea: editingTarea.nombre_tarea || "",
         descripcion: editingTarea.descripcion || "",
         responsable: editingTarea.responsable || "",
-        estado_tarea: "Pendiente",
+        estado_tarea: editingTarea.estado_tarea || "Pendiente",
         fecha_inicio: formatFecha(editingTarea.fecha_inicio),
         fecha_termino: formatFecha(editingTarea.fecha_termino),
         comentarios: editingTarea.comentarios || "",
@@ -86,20 +84,16 @@ const TareasDiariasForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar entradas
     if (!tarea.nombre_tarea || !tarea.descripcion || !tarea.responsable) {
       alert("Por favor completa todos los campos requeridos.");
       return;
     }
 
-    console.log("Datos enviados:", tarea);
-
     try {
       let response;
       if (tarea.id) {
-        // Actualizar tarea existente
         response = await axios.put(
-          `http://localhost:3001/api/tareas/${tarea.id}`,
+          `https://opsmergeback-production.up.railway.app/api/tareas/${tarea.id}`,
           {
             nombre_tarea: tarea.nombre_tarea,
             descripcion: tarea.descripcion,
@@ -107,24 +101,23 @@ const TareasDiariasForm = () => {
             fecha_inicio: tarea.fecha_inicio,
             fecha_termino: tarea.fecha_termino,
             comentarios: tarea.comentarios,
-            estado_tarea: "Completado",
+            estado_tarea: tarea.estado_tarea,
           }
         );
-        console.log("Tarea actualizada:", response.data);
         setTareas((prevTareas) =>
           prevTareas.map((t) => (t.id === tarea.id ? response.data.tarea : t))
         );
       } else {
-        // Crear nueva tarea
-        response = await axios.post("http://localhost:3001/api/tareas", tarea);
-        console.log("Tarea creada:", response.data);
+        response = await axios.post("https://opsmergeback-production.up.railway.app/api/tareas", {
+          ...tarea,
+          estado_tarea: "Pendiente",
+        });
         setTareas([...tareas, response.data]);
       }
 
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 3000);
 
-      // Limpiar el formulario
       setTarea({
         id: "",
         nombre_tarea: "",
@@ -137,9 +130,7 @@ const TareasDiariasForm = () => {
       });
     } catch (error) {
       console.error("Error al guardar la tarea:", error);
-      alert(
-        "Ocurrió un error al guardar la tarea. Por favor intenta nuevamente."
-      );
+      alert("Ocurrió un error al guardar la tarea. Por favor intenta nuevamente.");
     }
   };
 
@@ -149,13 +140,22 @@ const TareasDiariasForm = () => {
 
   const handleDeleteClick = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/tareas/${id}`);
+      await axios.delete(`https://opsmergeback-production.up.railway.app/api/tareas/${id}`);
       setTareas((prevTareas) => prevTareas.filter((tarea) => tarea.id !== id));
       setShowAlert(true);
       setTimeout(() => setShowAlert(false), 3000);
     } catch (error) {
       console.error("Error al eliminar la tarea:", error);
     }
+  };
+
+  const formatFecha = (fecha) => {
+    if (!fecha) return "";
+    const date = new Date(fecha);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses empiezan desde 0
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   if (loading) {
@@ -218,6 +218,7 @@ const TareasDiariasForm = () => {
             name="estado_tarea"
             value={tarea.estado_tarea}
             onChange={handleChange}
+            disabled={true} // Deshabilitar este campo al crear una nueva tarea
             required
           >
             <option value="Pendiente">Pendiente</option>
@@ -241,67 +242,68 @@ const TareasDiariasForm = () => {
             value={tarea.fecha_termino}
             onChange={handleChange}
             required
-          />{" "}
-        </Form.Group>{" "}
+          />
+        </Form.Group>
         <Form.Group controlId="comentarios">
-          {" "}
-          <Form.Label>Comentarios</Form.Label>{" "}
+          <Form.Label>Comentarios</Form.Label>
           <Form.Control
             as="textarea"
             name="comentarios"
             value={tarea.comentarios}
             onChange={handleChange}
-          />{" "}
-        </Form.Group>{" "}
+          />
+        </Form.Group>
         <Button variant="primary" type="submit">
-          {" "}
-          Guardar{" "}
-        </Button>{" "}
+          Guardar
+        </Button>
       </Form>
-      <h3 className="mt-4">Lista de Tareas</h3>{" "}
+      <h3 className="mt-4">Lista de Tareas</h3>
       {showAlert && (
         <Alert variant="success">Operación realizada con éxito</Alert>
-      )}{" "}
-      {error && <Alert variant="danger">{error}</Alert>}{" "}
+      )}
+      {error && <Alert variant="danger">{error}</Alert>}
       <Table striped bordered hover responsive className="mt-4">
-        {" "}
         <thead>
-          {" "}
           <tr>
-            {" "}
-            <th>Nombre de la Tarea</th> <th>Descripción</th>{" "}
-            <th>Responsable</th> <th>Estado de la Tarea</th>{" "}
-            <th>Fecha Inicio</th> <th>Fecha Término</th> <th>Comentarios</th>{" "}
-            <th>Acciones</th>{" "}
-          </tr>{" "}
-        </thead>{" "}
+            <th>Nombre de la Tarea</th>
+            <th>Descripción</th>
+            <th>Responsable</th>
+            <th>Estado</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Término</th>
+            <th>Comentarios</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
         <tbody>
-          {" "}
           {tareas.map((tarea) => (
             <tr key={tarea.id}>
-              {" "}
-              <td>{tarea.nombre_tarea}</td> <td>{tarea.descripcion}</td>{" "}
-              <td>{tarea.responsable}</td> <td>{tarea.estado_tarea}</td>{" "}
-              <td>{tarea.fecha_inicio}</td> <td>{tarea.fecha_termino}</td>{" "}
-              <td>{tarea.comentarios}</td>{" "}
+              <td>{tarea.nombre_tarea}</td>
+              <td>{tarea.descripcion}</td>
+              <td>{tarea.responsable}</td>
+              <td>{tarea.estado_tarea}</td>
+              <td>{formatFecha(tarea.fecha_inicio)}</td>
+              <td>{formatFecha(tarea.fecha_termino)}</td>
+              <td>{tarea.comentarios}</td>
               <td>
-                {" "}
-                <Button onClick={() => handleEditClick(tarea)} variant="light">
-                  {" "}
-                  <FaEdit />{" "}
-                </Button>{" "}
                 <Button
-                  onClick={() => handleDeleteClick(tarea.id)}
-                  variant="danger"
+                  variant="info"
+                  onClick={() => handleEditClick(tarea)}
                 >
-                  {" "}
-                  <FaTrashAlt />{" "}
-                </Button>{" "}
-              </td>{" "}
+                  <FaEdit />
+                </Button>
+                <Button
+                  variant="danger"
+                  className="ml-2"
+                  onClick={() => handleDeleteClick(tarea.id)}
+                >
+                  <FaTrashAlt />
+                </Button>
+              </td>
             </tr>
-          ))}{" "}
-        </tbody>{" "}
-      </Table>{" "}
+          ))}
+        </tbody>
+      </Table>
     </div>
   );
 };

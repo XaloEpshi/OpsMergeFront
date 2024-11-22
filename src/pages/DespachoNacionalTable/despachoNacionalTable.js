@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Table, Form, Modal, Button, Alert } from "react-bootstrap";
 import { FaEdit } from "react-icons/fa";
@@ -16,9 +16,9 @@ const DespachoNacionalTable = () => {
   const [noResults, setNoResults] = useState(false);
   const [showAlert] = useState({ type: "", message: "" });
 
-  const fetchDispatches = async () => {
+  const fetchDispatches = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/despacho");
+      const response = await axios.get("https://opsmergeback-production.up.railway.app/api/despacho");
       if (Array.isArray(response.data)) {
         const dispatchesWithState = response.data.map((dispatch) => ({
           ...dispatch,
@@ -32,7 +32,7 @@ const DespachoNacionalTable = () => {
     } catch (error) {
       console.error("Error al obtener los datos de despachos:", error);
     }
-  };
+  }, []);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -72,20 +72,13 @@ const DespachoNacionalTable = () => {
     const matchesSearchTerm =
       dispatch.nombreChofer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.rutChofer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.patenteCamion
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      dispatch.patenteRampla
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      dispatch.numeroSellos
-        ?.toString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
+      dispatch.patenteCamion?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dispatch.patenteRampla?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dispatch.numeroSellos?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.detalles?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.fecha?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       dispatch.hora?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      dispatch.responsable?.toLowerCase().includes(searchTerm.toLowerCase()); // Añadido filtro por responsable
+      dispatch.responsable?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilter =
       filter === "Todos" ||
@@ -94,6 +87,10 @@ const DespachoNacionalTable = () => {
 
     return matchesSearchTerm && matchesFilter;
   });
+
+  useEffect(() => {
+    fetchDispatches();
+  }, [fetchDispatches]);
 
   useEffect(() => {
     setNoResults(filteredDispatches.length === 0);
@@ -106,13 +103,25 @@ const DespachoNacionalTable = () => {
 
   const handleFormSubmit = async (newDispatch) => {
     try {
-      const dispatchWithUser = { ...newDispatch, user_id: userData?.uid, responsable: userData.username }; // Incluir user_id y responsable
-      await axios.post("http://localhost:3001/api/despacho", dispatchWithUser, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log("Nuevo despacho guardado correctamente");
-      alert("Datos guardados");
-      setDispatches((prevDispatches) => [...prevDispatches, dispatchWithUser]);
+      if (selectedDispatch) {
+        // Update existing dispatch
+        const dispatchWithUser = { ...newDispatch, user_id: userData?.uid, responsable: userData.username };
+        await axios.put(`https://opsmergeback-production.up.railway.app/api/despacho/${selectedDispatch.id}`, dispatchWithUser, {
+          headers: { "Content-Type": "application/json" },
+        });
+        console.log("Despacho actualizado correctamente");
+        alert("Datos actualizados");
+        setDispatches((prevDispatches) => prevDispatches.map(d => d.id === selectedDispatch.id ? { ...d, ...dispatchWithUser } : d));
+      } else {
+        // Create new dispatch
+        const dispatchWithUser = { ...newDispatch, user_id: userData?.uid, responsable: userData.username };
+        await axios.post("https://opsmergeback-production.up.railway.app/api/despacho", dispatchWithUser, {
+          headers: { "Content-Type": "application/json" },
+        });
+        console.log("Nuevo despacho guardado correctamente");
+        alert("Datos guardados");
+        setDispatches((prevDispatches) => [...prevDispatches, dispatchWithUser]);
+      }
       setShowDespachoForm(false);
     } catch (error) {
       console.error("Error al guardar los datos:", error);
@@ -121,6 +130,7 @@ const DespachoNacionalTable = () => {
 
   const handleCloseForm = () => {
     setShowDespachoForm(false);
+    setSelectedDispatch(null);
   };
 
   return (
@@ -222,3 +232,5 @@ const DespachoNacionalTable = () => {
 };
 
 export default DespachoNacionalTable;
+
+

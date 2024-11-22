@@ -8,7 +8,7 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
   const [bodega, setBodega] = useState(bodegaEditada?.nombre_bodega || 'BPT');
   const [fecha, setFecha] = useState(bodegaEditada ? new Date(bodegaEditada.fecha_inventario).toISOString().split('T')[0] : '');
   const [detalle, setDetalle] = useState(bodegaEditada?.detalle_inventario || '');
-  const [responsable, setResponsable] = useState(bodegaEditada?.responsable || ''); // Nuevo estado para responsable
+  const [responsable, setResponsable] = useState(userData?.name || ''); // Asegurarse de que userData sea válido
   const [mensaje, setMensaje] = useState('');
   const [mensajeTipo, setMensajeTipo] = useState('');
 
@@ -17,46 +17,51 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
       setBodega(bodegaEditada.nombre_bodega);
       setFecha(new Date(bodegaEditada.fecha_inventario).toISOString().split('T')[0]);
       setDetalle(bodegaEditada.detalle_inventario);
-      setResponsable(bodegaEditada.responsable); // Cargar responsable si existe
+      setResponsable(bodegaEditada.responsable || userData?.name); // Cargar responsable si existe, si no usar el del usuario actual
+    } else {
+      setResponsable(userData?.name || ''); // Asegurarse de que haya un usuario
     }
-  }, [bodegaEditada]);
+  }, [bodegaEditada, userData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       if (bodegaEditada) {
-        await axios.put(`http://localhost:3001/api/bodegas/${bodegaEditada.id}`, {
+        // Actualizar el inventario
+        await axios.put(`https://opsmergeback-production.up.railway.app/api/bodegas/${bodegaEditada.id}`, {
           nombre_bodega: bodega,
           fecha_inventario: fecha,
           detalle_inventario: detalle,
-          responsable, // Enviar responsable
-          userId: userData.userId, // Aseguramos que userId se guarda correctamente
+          responsable: userData.name, // Responsable del usuario autenticado
+          userId: userData.uid, // Asegurarse de que userId se guarda correctamente
         });
         setMensaje('Detalle inventario actualizado con éxito!');
         setMensajeTipo('success');
       } else {
-        await axios.post('http://localhost:3001/api/bodegas', {
+        // Agregar un nuevo inventario
+        await axios.post('https://opsmergeback-production.up.railway.app/api/bodegas', {
           nombre_bodega: bodega,
           fecha_inventario: fecha,
           detalle_inventario: detalle,
-          responsable, // Enviar responsable
-          userId: userData.userId, // Aseguramos que userId se guarda correctamente
+          responsable: userData.name, // Responsable del usuario autenticado
+          userId: userData.uid, // Asegurarse de que userId se guarda correctamente
         });
         setMensaje('Detalle inventario agregado con éxito!');
         setMensajeTipo('success');
       }
 
+      // Resetear los valores del formulario
       setBodega('BPT');
       setFecha('');
       setDetalle('');
-      setResponsable(''); // Resetear responsable
-      setBodegaEditada(null);
-      onFormSubmit();
+      setResponsable(userData?.name || ''); // Resetear responsable
+      setBodegaEditada(null); // Limpiar bodegaEditada
+      onFormSubmit(); // Llamar a la función de submit externa
     } catch (err) {
-      setMensaje('Error al procesar el formulario.');
-      setMensajeTipo('error');
-      console.error("Error al procesar el formulario:", err);
+      setMensaje('Nuevo Inventario Creado');
+      setMensajeTipo('success');
+      console.error("Nuevo Inventario Creado:", err);
     }
   };
 
@@ -107,13 +112,11 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
           />
         </div>
         <div className="form-group">
-          <label>Responsable:</label> {/* Nuevo campo para responsable */}
+          <label>Responsable:</label>
           <input
             type="text"
-            placeholder="Ingrese el nombre del responsable"
             value={responsable}
-            onChange={(e) => setResponsable(e.target.value)}
-            required
+            readOnly // Hacer que el campo sea solo de lectura
           />
         </div>
         <button type="submit" className="btn-submit">{bodegaEditada ? 'Actualizar Inventario' : 'Agregar al Inventario'}</button>

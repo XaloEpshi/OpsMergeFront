@@ -2,19 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
 import axios from "axios";
-import useAuth from '../../hooks/useAuth'; // Importar el hook de autenticación
+import useAuth from '../../hooks/useAuth';
+import { auth } from '../../firebase';
 import InventarioForm from "../InventarioForm/inventarioForm";
-import "./inventarioTable.css"; // Asegúrate de importar los estilos
+import "./inventarioTable.css";
 
 const InventarioTable = () => {
-  const { userData } = useAuth(); // Obtener el usuario autenticado
+  const { userData } = useAuth();
   const [inventario, setInventario] = useState([]);
   const [bodegaEditada, setBodegaEditada] = useState(null);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false); // Estado para mostrar u ocultar el formulario
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
+  // Obtener el inventario al cargar el componente
   const fetchInventario = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/bodegas");
+      const response = await axios.get("https://opsmergeback-production.up.railway.app/api/bodegas");
       setInventario(response.data);
     } catch (err) {
       console.error("Error al obtener el inventario:", err);
@@ -25,17 +27,26 @@ const InventarioTable = () => {
     fetchInventario();
   }, []);
 
+  // Eliminar inventario si el usuario es el responsable
   const handleDelete = async (id) => {
     const item = inventario.find((item) => item.id === id);
-    if (item.userId !== userData.userId) {
-      alert("No tienes permiso para eliminar este inventario.");
+    console.log("User attempting to delete:", userData.name);
+    console.log("Item responsible:", item.responsable);
+    
+    if (item.responsable !== userData.name) {
+      alert("Solo el responsable puede Eliminar el inventario.");
       return;
     }
-
+  
     const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar la bodega con ID ${id}?`);
     if (isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3001/api/bodegas/${id}`);
+        const token = await auth.currentUser.getIdToken(true);
+        await axios.delete(`https://opsmergeback-production.up.railway.app/api/bodegas/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         setInventario(inventario.filter((item) => item.id !== id));
         console.log(`Bodega con ID ${id} eliminada`);
       } catch (err) {
@@ -43,21 +54,25 @@ const InventarioTable = () => {
       }
     }
   };
-
+  
   const handleEdit = (id) => {
     const item = inventario.find((item) => item.id === id);
-    if (item.userId !== userData.userId) {
-      alert("No tienes permiso para editar este inventario.");
+    console.log("User attempting to edit:", userData.name);
+    console.log("Item responsible:", item.responsable);
+  
+    if (item.responsable !== userData.name) {
+      alert("Solo el responsable puede Editar el inventario.");
       return;
     }
-
+  
     setBodegaEditada(item);
     setMostrarFormulario(true);
   };
+  
 
   const onFormSubmit = () => {
-    setMostrarFormulario(false);
-    fetchInventario();
+    setMostrarFormulario(false); // Cerrar formulario después de enviar
+    fetchInventario(); // Actualizar inventario después de editar
   };
 
   const handleCloseForm = () => {
@@ -85,16 +100,15 @@ const InventarioTable = () => {
             <th>Bodega</th>
             <th>Fecha</th>
             <th>Detalle</th>
-            <th>responsable</th>
+            <th>Responsable</th>
             <th>Acciones</th>
-            
           </tr>
         </thead>
         <tbody>
           {inventario.map((item) => (
             <tr key={item.id}>
               <td>{item.nombre_bodega}</td>
-              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>              
+              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>
               <td>{item.detalle_inventario}</td>
               <td>{item.responsable}</td>
               <td>

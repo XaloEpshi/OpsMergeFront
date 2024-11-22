@@ -17,7 +17,7 @@ const CustomCalendar = () => {
   // Función para obtener eventos
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/calendario/events', {
+      const response = await axios.get('https://opsmergeback-production.up.railway.app/api/calendario/events', {
         params: {
           userId: '1', // Ajusta el userId según sea necesario
         },
@@ -53,12 +53,12 @@ const CustomCalendar = () => {
       };
       if (selectedEvent) {
         // Actualizar evento
-        const response = await axios.put(`http://localhost:3001/api/calendario/events/${selectedEvent.id}`, eventToSave);
+        const response = await axios.put(`https://opsmergeback-production.up.railway.app/api/calendario/events/${selectedEvent.id}`, eventToSave);
         const updatedEvents = events.map(evt => (evt.id === response.data.id ? response.data : evt));
         setEvents(updatedEvents);
       } else {
         // Crear evento
-        const response = await axios.post('http://localhost:3001/api/calendario/events', eventToSave);
+        const response = await axios.post('https://opsmergeback-production.up.railway.app/api/calendario/events', eventToSave);
         setEvents([...events, response.data]);
       }
       setShowModal(false);
@@ -74,7 +74,7 @@ const CustomCalendar = () => {
   const handleDeleteEvent = async () => {
     if (selectedEvent) {
       try {
-        await axios.delete(`http://localhost:3001/api/calendario/events/${selectedEvent.id}`);
+        await axios.delete(`https://opsmergeback-production.up.railway.app/api/calendario/events/${selectedEvent.id}`);
         const filteredEvents = events.filter(evt => evt.id !== selectedEvent.id);
         setEvents(filteredEvents);
         setShowModal(false);

@@ -18,7 +18,7 @@ const FormularioExportaciones = () => {
     telefono: "",
     contenedor: "",
     selloNaviero: "",
-    status: "",
+    status: "En Espera", //Valor por Default
     transporte: "",
     tipoContenedor: "",
     centroCarga: "",
@@ -37,6 +37,14 @@ const FormularioExportaciones = () => {
     numeroInterno: "",
   });
 
+  const formatFecha = (fecha) => {
+    const date = new Date(fecha);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -46,10 +54,13 @@ const FormularioExportaciones = () => {
     try {
       const dataToSend = {
         ...formData,
+        fechaCarga: formData.fechaCarga ? formatFecha(formData.fechaCarga) : "",
         poExportacion: String(formData.poExportacion),
-        // convertir otros campos numéricos a string si es necesario
       };
-      await axios.post("http://localhost:3001/api/exportaciones", dataToSend);
+      await axios.post(
+        "https://opsmergeback-production.up.railway.app/api/exportaciones",
+        dataToSend
+      );
       alert("Datos de exportación registrados con éxito");
       setFormData({
         mercado: "",
@@ -91,7 +102,7 @@ const FormularioExportaciones = () => {
   return (
     <>
       <form onSubmit={handleSubmit} className="exportaciones-form">
-        <h1 className="form-title"> Agenda Exportaciones</h1>
+        <h1 className="form-title">Agenda Exportaciones</h1>
         <br />
         <h3>Datos Encargada de Exportaciones</h3>
         <br />
@@ -200,7 +211,7 @@ const FormularioExportaciones = () => {
                 value={formData.poExportacion}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Numero PO requerido"
               />
             </Form.Group>
           </Col>
@@ -265,7 +276,7 @@ const FormularioExportaciones = () => {
                 value={formData.contenedor}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo GAOU711741-1 requerido"
               />
             </Form.Group>
           </Col>
@@ -278,7 +289,7 @@ const FormularioExportaciones = () => {
                 value={formData.selloNaviero}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo ML-CL03524 requerido"
               />
             </Form.Group>
           </Col>
@@ -286,7 +297,7 @@ const FormularioExportaciones = () => {
         <Row>
           <Col>
             <Form.Group controlId="status">
-              <Form.Label>Status (Requerido)</Form.Label>
+              <Form.Label>Status</Form.Label>
               <Form.Control
                 as="select"
                 name="status"
@@ -294,9 +305,6 @@ const FormularioExportaciones = () => {
                 onChange={handleChange}
                 required
               >
-                <option value="" disabled>
-                  Seleccione una opción
-                </option>
                 <option value="En espera">En espera</option>
                 <option value="Cancelado">Cancelado</option>
               </Form.Control>
@@ -311,7 +319,7 @@ const FormularioExportaciones = () => {
                 value={formData.transporte}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo PERROT requerido"
               />
             </Form.Group>
           </Col>
@@ -326,7 +334,7 @@ const FormularioExportaciones = () => {
                 value={formData.tipoContenedor}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo HC40 requerido"
               />
             </Form.Group>
           </Col>
@@ -339,7 +347,7 @@ const FormularioExportaciones = () => {
                 value={formData.centroCarga}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder=" Ejemplo CPW MAIPU requerido"
               />
             </Form.Group>
           </Col>
@@ -349,12 +357,12 @@ const FormularioExportaciones = () => {
             <Form.Group controlId="nave">
               <Form.Label>Nave</Form.Label>
               <Form.Control
-                type="text"
+                type="Number"
                 name="nave"
                 value={formData.nave}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo SNG0440734 requerido"
               />
             </Form.Group>
           </Col>
@@ -367,7 +375,7 @@ const FormularioExportaciones = () => {
                 value={formData.pol}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo EVER LAWFUL requerido"
               />
             </Form.Group>
           </Col>
@@ -382,7 +390,7 @@ const FormularioExportaciones = () => {
                 value={formData.naviera}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejamplo SAN ANTONIO requerido"
               />
             </Form.Group>
           </Col>
@@ -394,6 +402,8 @@ const FormularioExportaciones = () => {
                 name="operador"
                 value={formData.operador}
                 onChange={handleChange}
+                required
+                placeholder="Ejamplo MAERSK requerido"
               />
             </Form.Group>
           </Col>
@@ -414,7 +424,7 @@ const FormularioExportaciones = () => {
             <Form.Group controlId="numeroInterno">
               <Form.Label>N° Interno</Form.Label>
               <Form.Control
-                type="text"
+                type="Number"
                 name="numeroInterno"
                 value={formData.numeroInterno}
                 onChange={handleChange}
@@ -456,7 +466,7 @@ const FormularioExportaciones = () => {
                 value={formData.destino}
                 onChange={handleChange}
                 required
-                placeholder="requerido"
+                placeholder="Ejemplo PUERTO SAN ANTONIO requerido"
               />
             </Form.Group>
           </Col>
@@ -481,8 +491,6 @@ const FormularioExportaciones = () => {
                 name="delivery"
                 value={formData.delivery}
                 onChange={handleChange}
-                required
-                placeholder="requerido"
               />
             </Form.Group>
           </Col>
@@ -500,7 +508,7 @@ const FormularioExportaciones = () => {
         </Row>
         <Row>
           <Col>
-      <Form.Group controlId="numeroInterno">
+            <Form.Group controlId="numeroInterno">
               <Form.Label>N° Interno</Form.Label>
               <Form.Control
                 type="text"
@@ -510,7 +518,6 @@ const FormularioExportaciones = () => {
               />
             </Form.Group>
           </Col>
-          <Col></Col>
         </Row>
 
         <br />
@@ -523,4 +530,3 @@ const FormularioExportaciones = () => {
 };
 
 export default FormularioExportaciones;
-
