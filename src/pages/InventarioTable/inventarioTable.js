@@ -12,7 +12,9 @@ const InventarioTable = () => {
 
   const fetchInventario = async () => {
     try {
-      const response = await axios.get("https://opsmergeback-production.up.railway.app/api/bodegas");
+      const response = await axios.get(
+        "https://opsmergeback-production.up.railway.app/api/bodegas"
+      );
       setInventario(response.data);
     } catch (err) {
       console.error("Error al obtener el inventario:", err);
@@ -24,10 +26,14 @@ const InventarioTable = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar la bodega con ID ${id}?`);
+    const isConfirmed = window.confirm(
+      `¿Estás seguro de que deseas eliminar la bodega con ID ${id}?`
+    );
     if (isConfirmed) {
       try {
-        await axios.delete(`https://opsmergeback-production.up.railway.app/api/bodegas/${id}`);
+        await axios.delete(
+          `https://opsmergeback-production.up.railway.app/api/bodegas/${id}`
+        );
         setInventario(inventario.filter((item) => item.id !== id));
         console.log(`Bodega con ID ${id} eliminada`);
       } catch (err) {
@@ -44,7 +50,7 @@ const InventarioTable = () => {
 
   const onFormSubmit = () => {
     setMostrarFormulario(false);
-    fetchInventario();
+    fetchInventario(); // Refresca el inventario
   };
 
   const handleCloseForm = () => {
@@ -59,10 +65,10 @@ const InventarioTable = () => {
         <FaSync /> Actualizar
       </Button>
       {mostrarFormulario && (
-        <InventarioForm 
-          bodegaEditada={bodegaEditada} 
-          setBodegaEditada={setBodegaEditada} 
-          onFormSubmit={onFormSubmit} 
+        <InventarioForm
+          bodegaEditada={bodegaEditada}
+          setBodegaEditada={setBodegaEditada}
+          onFormSubmit={onFormSubmit}
           onClose={handleCloseForm}
         />
       )}
@@ -80,23 +86,16 @@ const InventarioTable = () => {
           {inventario.map((item) => (
             <tr key={item.id}>
               <td>{item.nombre_bodega}</td>
-              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>              
+              <td>{new Date(item.fecha_inventario).toLocaleDateString()}</td>
               <td>{item.detalle_inventario}</td>
               <td>{item.responsable}</td>
               <td>
-                <button
-                  className="btn-inventario-edit"
-                  onClick={() => handleEdit(item.id)}
-                >
-                  <FaEdit />
-                </button>
-                <br />
-                <button
-                  className="btn-inventario-delete"
-                  onClick={() => handleDelete(item.id)}
-                >
-                  <FaTrash />
-                </button>
+                <Button onClick={() => handleEdit(item.id)}>
+                  <FaEdit /> Editar
+                </Button>
+                <Button variant="danger" onClick={() => handleDelete(item.id)}>
+                  <FaTrash /> Eliminar
+                </Button>
               </td>
             </tr>
           ))}

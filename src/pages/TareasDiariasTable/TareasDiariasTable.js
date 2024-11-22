@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, Spinner, Alert, Button, Modal, Form } from 'react-bootstrap';
 import { FaEdit, FaSyncAlt } from 'react-icons/fa';
-import useAuth from '../../hooks/useAuth'; // Supongo que tienes un hook de autenticación similar
 
 const TareasDiariasTable = () => {
-  const { userData } = useAuth(); // Obtener datos del usuario autenticado
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,10 +36,6 @@ const TareasDiariasTable = () => {
   };
 
   const handleEditClick = (tarea) => {
-    if (tarea.responsable !== userData.username) {
-      alert("Solo el responsable de la tarea puede comentarla.");
-      return;
-    }
     setCurrentTarea({
       ...tarea,
       fecha_inicio: formatDate(tarea.fecha_inicio),
@@ -57,7 +51,7 @@ const TareasDiariasTable = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCurrentTarea({ ...currentTarea, [name]: value });
+    setCurrentTarea((prevTarea) => ({ ...prevTarea, [name]: value }));
   };
 
   const handleSubmit = async (e) => {

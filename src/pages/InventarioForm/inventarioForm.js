@@ -6,7 +6,7 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
   const [bodega, setBodega] = useState(bodegaEditada?.nombre_bodega || 'BPT');
   const [fecha, setFecha] = useState(bodegaEditada ? new Date(bodegaEditada.fecha_inventario).toISOString().split('T')[0] : '');
   const [detalle, setDetalle] = useState(bodegaEditada?.detalle_inventario || '');
-  const [responsable, setResponsable] = useState(bodegaEditada?.responsable || ''); // Estado para el responsable
+  const [responsable, setResponsable] = useState(bodegaEditada?.responsable || '');
   const [mensaje, setMensaje] = useState('');
   const [mensajeTipo, setMensajeTipo] = useState('');
 
@@ -15,57 +15,73 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
       setBodega(bodegaEditada.nombre_bodega);
       setFecha(new Date(bodegaEditada.fecha_inventario).toISOString().split('T')[0]);
       setDetalle(bodegaEditada.detalle_inventario);
-      setResponsable(bodegaEditada.responsable); // Cargar responsable si existe
+      setResponsable(bodegaEditada.responsable);
     }
   }, [bodegaEditada]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Verificar que todos los campos están completos
+    if (!bodega || !fecha || !detalle || !responsable) {
+      setMensaje('Por favor, complete todos los campos.');
+      setMensajeTipo('error');
+      return;
+    }
+  
+    const confirmed = window.confirm('¿Está seguro de que desea guardar este inventario?');
+    if (!confirmed) return;
+  
     try {
       if (bodegaEditada) {
+        // Si estamos editando un inventario, hacer PUT
         await axios.put(`https://opsmergeback-production.up.railway.app/api/bodegas/${bodegaEditada.id}`, {
           nombre_bodega: bodega,
           fecha_inventario: fecha,
           detalle_inventario: detalle,
-          responsable, // Enviar responsable
+          responsable,
         });
         setMensaje('Detalle inventario actualizado con éxito!');
         setMensajeTipo('success');
       } else {
+        // Si estamos agregando un inventario, hacer POST
         await axios.post('https://opsmergeback-production.up.railway.app/api/bodegas', {
           nombre_bodega: bodega,
           fecha_inventario: fecha,
           detalle_inventario: detalle,
-          responsable, // Enviar responsable
+          responsable,
         });
         setMensaje('Detalle inventario agregado con éxito!');
         setMensajeTipo('success');
       }
-
-      // Resetear los valores del formulario
+  
+      // Restablecer el formulario después de la operación
       setBodega('BPT');
       setFecha('');
       setDetalle('');
-      setResponsable(''); // Resetear responsable
+      setResponsable('');
       setBodegaEditada(null);
-      onFormSubmit();
+      onFormSubmit(); // Llamar a onFormSubmit para actualizar la vista
     } catch (err) {
       setMensaje('Error al procesar el formulario.');
       setMensajeTipo('error');
       console.error("Error al procesar el formulario:", err);
     }
   };
+  
 
   useEffect(() => {
     if (mensaje) {
+      // Borrar mensaje después de 3 segundos
       const timer = setTimeout(() => {
         setMensaje('');
         setMensajeTipo('');
       }, 3000);
+  
       return () => clearTimeout(timer);
     }
   }, [mensaje]);
+  
 
   return (
     <div className="inventario-form-container">
@@ -120,3 +136,4 @@ const InventarioForm = ({ bodegaEditada, setBodegaEditada, onFormSubmit, onClose
 };
 
 export default InventarioForm;
+
