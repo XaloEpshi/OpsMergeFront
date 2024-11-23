@@ -28,13 +28,13 @@ const FormularioExportaciones = () => {
     operador: "",
     turno: "",
     patenteRampla: "",
-    patenteCamion: "",
+    patenteCamion: "", // manteniendo una sola patente de camión
     destino: "",
     selloEmpresa: "",
     delivery: "",
     poLocal: "",
     facturaCPW: "",
-    numeroInterno: "",
+    numeroInterno: "", // manteniendo un solo número interno
   });
 
   const formatFecha = (fecha) => {
@@ -329,204 +329,166 @@ const FormularioExportaciones = () => {
             <Form.Group controlId="tipoContenedor">
               <Form.Label>Tipo de Contenedor</Form.Label>
               <Form.Control
-                type="text"
-                name="tipoContenedor"
-                value={formData.tipoContenedor}
-                onChange={handleChange}
-                required
-                placeholder="Ejemplo HC40 requerido"
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="centroCarga">
-              <Form.Label>Centro de Carga</Form.Label>
-              <Form.Control
-                type="text"
-                name="centroCarga"
-                value={formData.centroCarga}
-                onChange={handleChange}
-                required
-                placeholder=" Ejemplo CPW MAIPU requerido"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="nave">
-              <Form.Label>Nave</Form.Label>
-              <Form.Control
-                type="Number"
-                name="nave"
-                value={formData.nave}
-                onChange={handleChange}
-                required
-                placeholder="Ejemplo SNG0440734 requerido"
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="pol">
-              <Form.Label>POL</Form.Label>
-              <Form.Control
-                type="text"
-                name="pol"
-                value={formData.pol}
-                onChange={handleChange}
-                required
-                placeholder="Ejemplo EVER LAWFUL requerido"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="naviera">
-              <Form.Label>Naviera</Form.Label>
-              <Form.Control
-                type="text"
-                name="naviera"
-                value={formData.naviera}
-                onChange={handleChange}
-                required
-                placeholder="Ejamplo SAN ANTONIO requerido"
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="operador">
-              <Form.Label>Operador</Form.Label>
-              <Form.Control
-                type="text"
-                name="operador"
-                value={formData.operador}
-                onChange={handleChange}
-                required
-                placeholder="Ejamplo MAERSK requerido"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="turno">
-              <Form.Label>Turno</Form.Label>
-              <Form.Control
-                type="text"
-                name="turno"
-                value={formData.turno}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="numeroInterno">
-              <Form.Label>N° Interno</Form.Label>
-              <Form.Control
-                type="Number"
-                name="numeroInterno"
-                value={formData.numeroInterno}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="patenteRampla">
-              <Form.Label>Patente Rampla</Form.Label>
-              <Form.Control
-                type="text"
-                name="patenteRampla"
-                value={formData.patenteRampla}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="patenteCamion">
-              <Form.Label>Patente Camión</Form.Label>
-              <Form.Control
-                type="text"
-                name="patenteCamion"
-                value={formData.patenteCamion}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="destino">
-              <Form.Label>Destino</Form.Label>
-              <Form.Control
-                type="text"
-                name="destino"
-                value={formData.destino}
-                onChange={handleChange}
-                required
-                placeholder="Ejemplo PUERTO SAN ANTONIO requerido"
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="selloEmpresa">
-              <Form.Label>Sello Empresa</Form.Label>
-              <Form.Control
-                type="text"
-                name="selloEmpresa"
-                value={formData.selloEmpresa}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="delivery">
-              <Form.Label>Delivery</Form.Label>
-              <Form.Control
-                type="text"
-                name="delivery"
-                value={formData.delivery}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group controlId="poLocal">
-              <Form.Label>PO Local</Form.Label>
-              <Form.Control
-                type="text"
-                name="poLocal"
-                value={formData.poLocal}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="numeroInterno">
-              <Form.Label>N° Interno</Form.Label>
-              <Form.Control
-                type="text"
-                name="numeroInterno"
-                value={formData.numeroInterno}
-                onChange={handleChange}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+                  type="text"
+                  name="tipoContenedor"
+                  value={formData.tipoContenedor}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo HC40 requerido"
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="centroCarga">
+                <Form.Label>Centro de Carga</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="centroCarga"
+                  value={formData.centroCarga}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo CPW MAIPU requerido"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group controlId="nave">
+                <Form.Label>Nave</Form.Label>
+                <Form.Control
+                  type="Number"
+                  name="nave"
+                  value={formData.nave}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo SNG0440734 requerido"
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="pol">
+                <Form.Label>POL</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="pol"
+                  value={formData.pol}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo EVER LAWFUL requerido"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group controlId="naviera">
+                <Form.Label>Naviera</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="naviera"
+                  value={formData.naviera}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo SAN ANTONIO requerido"
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="operador">
+                <Form.Label>Operador</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="operador"
+                  value={formData.operador}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo MAERSK requerido"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group controlId="turno">
+                <Form.Label>Turno</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="turno"
+                  value={formData.turno}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="patenteRampla">
+                <Form.Label>Patente Rampla</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="patenteRampla"
+                  value={formData.patenteRampla}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group controlId="destino">
+                <Form.Label>Destino</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="destino"
+                  value={formData.destino}
+                  onChange={handleChange}
+                  required
+                  placeholder="Ejemplo PUERTO SAN ANTONIO requerido"
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="selloEmpresa">
+                <Form.Label>Sello Empresa</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="selloEmpresa"
+                  value={formData.selloEmpresa}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group controlId="delivery">
+                <Form.Label>Delivery</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="delivery"
+                  value={formData.delivery}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group controlId="poLocal">
+                <Form.Label>PO Local</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="poLocal"
+                  value={formData.poLocal}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <br />
+          <Button variant="primary" type="submit">
+            Enviar
+          </Button>
+        </form>
+      </>
+    );
+  };
 
-        <br />
-        <Button variant="primary" type="submit">
-          Enviar
-        </Button>
-      </form>
-    </>
-  );
-};
-
-export default FormularioExportaciones;
+  export default FormularioExportaciones;

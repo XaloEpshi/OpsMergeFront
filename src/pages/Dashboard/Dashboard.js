@@ -14,7 +14,7 @@ const TareasDiariasForm = lazy(() => import("../TareasDiariasForm/TareasDiariasF
 const TareasDiariasTable = lazy(() => import("../TareasDiariasTable/TareasDiariasTable"));
 const Anuncios = lazy(() => import("../Anuncios/Anuncios"));
 
-const Dashboard = ({ activeView, handleViewChange }) => {
+const Dashboard = ({ activeView, handleViewChange, userRole }) => {
   const [notifications, setNotifications] = useState([]);
   const [anuncios, setAnuncios] = useState([]);
   const db = getFirestore();
@@ -53,7 +53,6 @@ const Dashboard = ({ activeView, handleViewChange }) => {
                 { title: "Exportaciones", icon: FaShippingFast, bgColor: "card-proveedores-unique" },
                 { title: "Inventario", icon: FaBoxOpen, bgColor: "card-inventario-unique" },
                 { title: "Tareas Diarias", icon: FaTasks, bgColor: "card-tareasDiarias-unique" },
-                { title: "Anuncios", icon: FaBullhorn, bgColor: "card-anuncios-unique" },
               ].map((card, index) => (
                 <Col key={index} md={6} lg={4}>
                   <Card className={`mb-4 shadow-sm ${card.bgColor}`} onClick={() => handleViewChange(card.title.toLowerCase().replace(" ", ""), "table")}>
@@ -68,6 +67,20 @@ const Dashboard = ({ activeView, handleViewChange }) => {
                   </Card>
                 </Col>
               ))}
+              {userRole === 'Líder de Equipo' && (
+                <Col md={6} lg={4}>
+                  <Card className="mb-4 shadow-sm card-anuncios-unique" onClick={() => handleViewChange("anuncios", "table")}>
+                    <Card.Body className="card-body">
+                      <Card.Title className="text-white">
+                        <FaBullhorn /> Anuncios
+                        {notifications.some(notification => notification.type === "anuncios") && (
+                          <FaBell className="notification-icon-blinking" />
+                        )}
+                      </Card.Title>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              )}
             </Row>
             <h2 className="mt-4 mb-4 anuncios-title-unique">Anuncios Recientes</h2>
             <Table striped bordered hover responsive className="anuncios-table-unique">
