@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './RegistroActividades.css';
+import './RegistroActividades.css'; // Importación de los estilos específicos para este componente
+import { v4 as uuidv4 } from 'uuid'; // Importa la biblioteca uuid para generar identificadores únicos
 
 const RegistroActividades = () => {
   const [actividades, setActividades] = useState([]);
@@ -12,7 +13,6 @@ const RegistroActividades = () => {
     const fetchActividades = async () => {
       try {
         const response = await axios.get('https://opsmergeback-production.up.railway.app/api/activities');
-        // Verificar si la respuesta es un array
         if (Array.isArray(response.data)) {
           setActividades(response.data);
         } else {
@@ -45,6 +45,7 @@ const RegistroActividades = () => {
     <div className="registro-actividades">
       <h2>Historial de Actividades</h2>
       {mensaje && <p className="mensaje">{mensaje}</p>}
+
       <div className="filtros">
         <input
           type="text"
@@ -59,6 +60,7 @@ const RegistroActividades = () => {
           onChange={handleFiltroFechaChange}
         />
       </div>
+
       <table className="tabla-actividades">
         <thead>
           <tr>
@@ -66,20 +68,21 @@ const RegistroActividades = () => {
             <th>Actividad</th>
             <th>Fecha y Hora</th>
             <th>Descripción</th>
-            <th>Usuario</th>
+            <th>Usuario o Turno</th>
           </tr>
         </thead>
         <tbody>
-          {actividadesFiltradas.map((actividad) => (
-            <tr key={actividad.id}>
-              <td>{actividad.origen}</td>
-              <td>{actividad.actividad}</td>
-              <td>{new Date(actividad.fecha_hora).toLocaleString()}</td>
-              <td>{actividad.descripcion}</td>
-              <td>{actividad.user_id}</td>
-            </tr>
-          ))}
-        </tbody>
+  {actividadesFiltradas.map((actividad) => (
+    <tr key={actividad.id || uuidv4()}>
+      <td>{actividad.origen}</td>
+      <td>{actividad.actividad}</td>
+      <td>{new Date(actividad.fecha_hora).toLocaleString()}</td>
+      <td>{actividad.descripcion}</td>
+      <td>{actividad.turno ? actividad.turno : actividad.user_id}</td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
     </div>
   );

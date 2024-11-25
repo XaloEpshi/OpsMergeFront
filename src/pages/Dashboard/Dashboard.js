@@ -93,9 +93,7 @@ const Dashboard = ({ activeView, handleViewChange, userRole }) => {
               <tbody>
                 {anuncios.map(anuncio => (
                   <tr key={anuncio.id} className="anuncio-nuevo">
-                    <td>
-                      <FaLightbulb className="notification-icon-blinking" /> {anuncio.mensaje}
-                    </td>
+                    <td><FaLightbulb className="notification-icon-blinking" /> {anuncio.mensaje}</td>
                     <td>{new Date(anuncio.timestamp.seconds * 1000).toLocaleString()}</td>
                   </tr>
                 ))}
@@ -103,7 +101,7 @@ const Dashboard = ({ activeView, handleViewChange, userRole }) => {
             </Table>
           </>
         )}
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div>Cargando componentes...</div>}>
           {activeView.content === "inventario" && activeView.view === "form" && <InventarioForm />}
           {activeView.content === "inventario" && activeView.view === "table" && <InventarioTable />}
           {activeView.content === "exportaciones" && activeView.view === "form" && <ExportacionesForm />}
@@ -114,10 +112,20 @@ const Dashboard = ({ activeView, handleViewChange, userRole }) => {
           {activeView.content === "tareasdiarias" && activeView.view === "table" && <TareasDiariasTable />}
           {activeView.content === "anuncios" && activeView.view === "table" && <Anuncios />}
         </Suspense>
-        <br/><br/><br/><br/>        
+        <br/><br/><br/><br/>
       </Container>
     </div>
   );
 };
 
 export default Dashboard;
+
+/* 
+El componente Dashboard gestiona la vista principal 
+del sistema, mostrando diferentes módulos como 
+inventarios, exportaciones, tareas diarias y anuncios. 
+Utiliza Firebase Firestore para gestionar y actualizar 
+en tiempo real las notificaciones y anuncios, 
+y emplea lazy loading para mejorar la carga y el 
+rendimiento del componente.
+*/

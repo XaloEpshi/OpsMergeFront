@@ -44,14 +44,12 @@ const Anuncios = () => {
       const newAnuncio = {
         mensaje: nuevoAnuncio,
         timestamp: new Date(),
-        usuario: userProfile.username,  // Cambia de user.email a userProfile.username
+        usuario: userProfile.username,
       };
       if (editAnuncio) {
-        // Update existing anuncio
         await updateDoc(doc(db, 'anuncios', editAnuncio.id), newAnuncio);
         setEditAnuncio(null);
       } else {
-        // Add new anuncio
         await addDoc(collection(db, 'anuncios'), newAnuncio);
       }
       setNuevoAnuncio('');
@@ -91,19 +89,12 @@ const Anuncios = () => {
           </Form>
           <Table striped bordered hover className="anuncios-tabla">
             <thead>
-              <tr>
-                <th>Anuncio</th>
-                <th>Usuario</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
-              </tr>
+              <tr><th>Anuncio</th><th>Usuario</th><th>Fecha</th><th>Acciones</th></tr>
             </thead>
             <tbody>
               {anuncios.map((anuncio) => (
                 <tr key={anuncio.id}>
-                  <td>{anuncio.mensaje}</td>
-                  <td>{anuncio.usuario}</td>
-                  <td>{new Date(anuncio.timestamp.seconds ? anuncio.timestamp.seconds * 1000 : anuncio.timestamp).toLocaleString()}</td>
+                  <td>{anuncio.mensaje}</td><td>{anuncio.usuario}</td><td>{new Date(anuncio.timestamp.seconds ? anuncio.timestamp.seconds * 1000 : anuncio.timestamp).toLocaleString()}</td>
                   <td>
                     <Button variant="warning" onClick={() => handleEdit(anuncio)}>Editar</Button>{' '}
                     <Button variant="danger" onClick={() => handleDelete(anuncio.id)}>Eliminar</Button>

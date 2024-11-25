@@ -28,6 +28,8 @@ const App = () => {
     return <div>Loading...</div>; // Muestra un loader mientras se verifica la autenticación
   }
 
+  console.log("App rendering with:", { isLoading, isAuthenticated, userData }); // Debugging
+
   return (
     <Router>
       <Header
@@ -38,9 +40,9 @@ const App = () => {
       />
       <div className="main-content">
         <Routes>
-          <Route path="/" element={isAuthenticated ? (<Navigate to="/dashboard" />) : (<AuthPage />)} />
+          <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />} />
           <Route path="/AuthPage" element={<AuthPage />} />
-          <Route path="/dashboard" element={isAuthenticated ? (<Dashboard activeView={activeView} handleViewChange={handleViewChange} />) : (<Navigate to="/" />)} />
+          <Route path="/dashboard" element={isAuthenticated ? <Dashboard activeView={activeView} handleViewChange={handleViewChange} /> : <Navigate to="/" />} />
           <Route path="/inventario" element={isAuthenticated ? <InventarioTable /> : <Navigate to="/" />} />
           <Route path="/exportaciones" element={isAuthenticated ? <ExportacionesTable /> : <Navigate to="/" />} />
           <Route path="/agenda-diaria" element={isAuthenticated ? <AgendaDiaria /> : <Navigate to="/" />} />

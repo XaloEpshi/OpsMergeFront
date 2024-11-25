@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './despachoNacionalForm.css'; // Importar los estilos
+import React, { useState, useEffect } from 'react';  // Importa React y hooks useState y useEffect
+import axios from 'axios';  // Importa axios para realizar peticiones HTTP
+import './despachoNacionalForm.css'; // Importa los estilos para el formulario
 
-const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onClose
+// El componente recibe 'dispatch' y 'onClose' como propiedades
+const DespachoNacionalForm = ({ dispatch, onClose }) => {
+  // Estado inicial del formulario, contiene los campos del despacho
   const [despacho, setDespacho] = useState({
-    cantidad: '',
-    nombreChofer: '',
-    rutChofer: '',
-    patenteCamion: '',
-    patenteRampla: '',
-    numeroSellos: '',
-    agenda_diaria_id: '',
-    responsable:""
+    cantidad: '',  // Campo para la cantidad de despacho
+    nombreChofer: '',  // Campo para el nombre del chofer
+    rutChofer: '',  // Campo para el RUT del chofer
+    patenteCamion: '',  // Campo para la patente del camión
+    patenteRampla: '',  // Campo para la patente de la rampla
+    numeroSellos: '',  // Campo para el número de sellos
+    agenda_diaria_id: '',  // Campo para el ID de la agenda diaria
+    responsable: ""  // Campo para el responsable del despacho
   });
 
+  // useEffect para establecer el estado inicial del formulario si hay datos en 'dispatch'
   useEffect(() => {
     if (dispatch) {
       setDespacho({
@@ -24,46 +27,50 @@ const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onCl
         patenteRampla: dispatch.patenteRampla || '',
         numeroSellos: dispatch.numeroSellos || '',
         agenda_diaria_id: dispatch.agenda_id || '',
-        responsable:dispatch.responsable || ''
+        responsable: dispatch.responsable || ''
       });
     }
-  }, [dispatch]);
+  }, [dispatch]); // Este efecto se ejecuta cada vez que 'dispatch' cambie
 
+  // Función que maneja los cambios en los campos del formulario
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target;  // Extrae el 'name' y 'value' del evento
     setDespacho({
-      ...despacho,
-      [name]: value
+      ...despacho,  // Conserva los valores previos
+      [name]: value  // Actualiza el campo específico en el estado
     });
   };
 
+  // Función para manejar el envío del formulario
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault();  // Previene el comportamiento por defecto del formulario (recarga de página)
     try {
+      // Realiza una petición POST a la API con los datos del despacho
       await axios.post('https://opsmergeback-production.up.railway.app/api/despacho', despacho, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }  // Define el tipo de contenido como JSON
       });
-      console.log('Datos guardados correctamente');
-      alert('Datos guardados correctamente');
-      if (onClose) onClose(); // Cierra el formulario
+      console.log('Datos guardados correctamente');  // Mensaje de éxito en la consola
+      alert('Datos guardados correctamente');  // Muestra una alerta al usuario
+      if (onClose) onClose();  // Si existe la función onClose, la ejecuta para cerrar el formulario
     } catch (error) {
-      console.error('Error al guardar los datos:', error);
+      console.error('Error al guardar los datos:', error);  // Si hay un error, lo muestra en la consola
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="despacho-form">
-      <h3>Formulario de Despacho Nacional</h3>
+    <form onSubmit={handleSubmit} className="despacho-form">  {/* Envoltorio del formulario */}
+      <h3>Formulario de Despacho Nacional</h3>  {/* Título del formulario */}
 
+      {/* Grupo de campos del formulario */}
       <div className="form-group">
         <label htmlFor="cantidad">Cantidad:</label>
         <input
           type="number"
-          name="cantidad"
-          value={despacho.cantidad}
-          onChange={handleChange}
-          placeholder="Cantidad"
-          required
+          name="cantidad"  // Define el nombre del campo para que se vincule con el estado
+          value={despacho.cantidad}  // Vincula el valor del campo con el estado
+          onChange={handleChange}  // Ejecuta handleChange al cambiar el valor
+          placeholder="Cantidad"  // Texto de ayuda cuando el campo está vacío
+          required  // El campo es obligatorio
         />
       </div>
 
@@ -137,24 +144,24 @@ const DespachoNacionalForm = ({ dispatch, onClose }) => { // Agrega la prop onCl
           placeholder="ID de la Agenda Diaria"
           required
         />
-        </div>
-  
-        <div className="form-group">
-          <label htmlFor="responsable">Responsable:</label>
-          <input
-            type="text"
-            name="responsable"
-            value={despacho.responsable}
-            onChange={handleChange}
-            placeholder="Responsable"
-            required
-          />
-        </div>
-  
-        <button type="submit" className="btn-submit">Guardar</button>
-      </form>
-    );
-  };
-  
-  export default DespachoNacionalForm;
-  
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="responsable">Responsable:</label>
+        <input
+          type="text"
+          name="responsable"
+          value={despacho.responsable}
+          onChange={handleChange}
+          placeholder="Responsable"
+          required
+        />
+      </div>
+
+      {/* Botón para enviar el formulario */}
+      <button type="submit" className="btn-submit">Guardar</button>
+    </form>
+  );
+};
+
+export default DespachoNacionalForm;  // Exporta el componente para que pueda ser utilizado en otras partes de la aplicación

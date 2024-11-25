@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Form, Button, Alert, Table, Spinner } from "react-bootstrap";
-import axios from "axios";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import React, { useState, useEffect } from "react"; // Importa React y hooks necesarios.
+import { Form, Button, Alert, Table, Spinner } from "react-bootstrap"; // Componentes de Bootstrap para formularios, botones, alertas, tablas y spinner.
+import axios from "axios"; // Importa Axios para hacer peticiones HTTP.
+import { getFirestore, collection, getDocs } from "firebase/firestore"; // Importa Firebase para obtener usuarios desde Firestore.
+import { FaEdit, FaTrashAlt } from "react-icons/fa"; // Iconos de editar y eliminar.
 
 const TareasDiariasForm = () => {
+  // Estado inicial para las variables de tarea, usuarios, tareas, y otros estados de UI.
   const [tarea, setTarea] = useState({
     id: "",
     nombre_tarea: "",
@@ -15,43 +16,46 @@ const TareasDiariasForm = () => {
     fecha_termino: "",
     comentarios: "",
   });
+  const [usuarios, setUsuarios] = useState([]); // Estado para almacenar la lista de usuarios.
+  const [tareas, setTareas] = useState([]); // Estado para almacenar las tareas.
+  const [loading, setLoading] = useState(true); // Estado para controlar el loading.
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Estado para mostrar mensaje de éxito.
+  const [error, setError] = useState(null); // Estado para manejar errores.
+  const [editingTarea, setEditingTarea] = useState(null); // Estado para almacenar la tarea que está siendo editada.
+  const [showAlert, setShowAlert] = useState(false); // Estado para mostrar alertas.
 
-  const [usuarios, setUsuarios] = useState([]);
-  const [tareas, setTareas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [error, setError] = useState(null);
-  const [editingTarea, setEditingTarea] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
-
+  // useEffect para cargar los usuarios desde Firebase y las tareas desde la API cuando el componente se monta.
   useEffect(() => {
     const fetchUsuarios = async () => {
-      const db = getFirestore();
-      const usersCollection = collection(db, "users");
-      const userSnapshot = await getDocs(usersCollection);
+      const db = getFirestore(); // Obtiene la instancia de Firestore.
+      const usersCollection = collection(db, "users"); // Accede a la colección "users" en Firestore.
+      const userSnapshot = await getDocs(usersCollection); // Obtiene los documentos de la colección.
       const userList = userSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
-      setUsuarios(userList);
+      })); // Mapea los documentos de usuarios a un array.
+      setUsuarios(userList); // Actualiza el estado de usuarios.
     };
 
     const fetchTareas = async () => {
       try {
+        // Realiza una solicitud GET para obtener las tareas desde una API.
         const response = await axios.get("https://opsmergeback-production.up.railway.app/api/tareas");
-        setTareas(response.data);
+        setTareas(response.data); // Actualiza el estado de tareas.
       } catch (error) {
+        // Maneja errores en la obtención de tareas.
         console.error("Error al obtener las tareas:", error);
         setError("No se pudieron cargar las tareas. Por favor, intenta nuevamente más tarde.");
       } finally {
-        setLoading(false);
+        setLoading(false); // Desactiva el loading.
       }
     };
 
-    fetchUsuarios();
-    fetchTareas();
-  }, []);
+    fetchUsuarios(); // Llama a la función para obtener los usuarios.
+    fetchTareas(); // Llama a la función para obtener las tareas.
+  }, []); // Este useEffect se ejecuta solo una vez cuando el componente se monta.
 
+  // useEffect para formatear la fecha cuando se edita una tarea.
   useEffect(() => {
     if (editingTarea) {
       const formatFecha = (fecha) => {
@@ -60,7 +64,7 @@ const TareasDiariasForm = () => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        return `${year}-${month}-${day}`; // Formatea la fecha en formato YYYY-MM-DD.
       };
 
       setTarea({
@@ -72,18 +76,21 @@ const TareasDiariasForm = () => {
         fecha_inicio: formatFecha(editingTarea.fecha_inicio),
         fecha_termino: formatFecha(editingTarea.fecha_termino),
         comentarios: editingTarea.comentarios || "",
-      });
+      }); // Establece los valores de la tarea en el formulario cuando se edita.
     }
   }, [editingTarea]);
 
+  // Manejador de cambios en el formulario.
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTarea({ ...tarea, [name]: value });
+    setTarea({ ...tarea, [name]: value }); // Actualiza el estado de tarea con el nuevo valor.
   };
 
+  // Manejador de envío del formulario para crear o actualizar tareas.
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Previene el comportamiento por defecto del formulario.
 
+    // Verifica que los campos obligatorios estén completos.
     if (!tarea.nombre_tarea || !tarea.descripcion || !tarea.responsable) {
       alert("Por favor completa todos los campos requeridos.");
       return;
@@ -92,6 +99,7 @@ const TareasDiariasForm = () => {
     try {
       let response;
       if (tarea.id) {
+        // Si hay una tarea con ID, actualiza la tarea existente.
         response = await axios.put(
           `https://opsmergeback-production.up.railway.app/api/tareas/${tarea.id}`,
           {
@@ -106,18 +114,20 @@ const TareasDiariasForm = () => {
         );
         setTareas((prevTareas) =>
           prevTareas.map((t) => (t.id === tarea.id ? response.data.tarea : t))
-        );
+        ); // Actualiza la lista de tareas con la tarea modificada.
       } else {
+        // Si no hay tarea ID, crea una nueva tarea.
         response = await axios.post("https://opsmergeback-production.up.railway.app/api/tareas", {
           ...tarea,
           estado_tarea: "Pendiente",
         });
-        setTareas([...tareas, response.data]);
+        setTareas([...tareas, response.data]); // Agrega la nueva tarea a la lista de tareas.
       }
 
-      setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 3000);
+      setShowSuccessMessage(true); // Muestra el mensaje de éxito.
+      setTimeout(() => setShowSuccessMessage(false), 3000); // Oculta el mensaje de éxito después de 3 segundos.
 
+      // Limpia el formulario después de guardar la tarea.
       setTarea({
         id: "",
         nombre_tarea: "",
@@ -134,30 +144,34 @@ const TareasDiariasForm = () => {
     }
   };
 
+  // Manejador de clic en editar para cargar la tarea en el formulario de edición.
   const handleEditClick = (tarea) => {
     setEditingTarea(tarea);
   };
 
+  // Manejador de clic en eliminar para eliminar una tarea de la API y la lista.
   const handleDeleteClick = async (id) => {
     try {
       await axios.delete(`https://opsmergeback-production.up.railway.app/api/tareas/${id}`);
-      setTareas((prevTareas) => prevTareas.filter((tarea) => tarea.id !== id));
-      setShowAlert(true);
-      setTimeout(() => setShowAlert(false), 3000);
+      setTareas((prevTareas) => prevTareas.filter((tarea) => tarea.id !== id)); // Filtra la tarea eliminada.
+      setShowAlert(true); // Muestra alerta de éxito.
+      setTimeout(() => setShowAlert(false), 3000); // Oculta la alerta después de 3 segundos.
     } catch (error) {
       console.error("Error al eliminar la tarea:", error);
     }
   };
 
+  // Función para formatear las fechas de inicio y término.
   const formatFecha = (fecha) => {
     if (!fecha) return "";
     const date = new Date(fecha);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses empiezan desde 0
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses empiezan desde 0.
     const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`; // Formatea la fecha en formato YYYY-MM-DD.
   };
 
+  // Si los datos están cargando, muestra un spinner.
   if (loading) {
     return <Spinner animation="border" />;
   }

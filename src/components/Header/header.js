@@ -283,3 +283,9 @@ const Header = () => {
 export default Header;
 
                   
+/*Este código crea un componente de cabecera (Header) 
+que maneja la navegación y sesión de usuario, 
+mostrando diferentes formularios modales según el rol 
+del usuario. Utiliza useState para gestionar la visibilidad
+ de estos formularios y hooks de react-router-dom 
+ para la navegación y autenticación.*/

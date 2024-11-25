@@ -1,86 +1,103 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Table, Form, Button, Modal } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { faSave } from "@fortawesome/free-solid-svg-icons";
-import "./ExportacionesTable.css";
+// Importación de librerías y componentes necesarios
+import React, { useState, useEffect } from "react"; // Importa los hooks de React
+import axios from "axios"; // Importa axios para hacer solicitudes HTTP
+import { Table, Form, Button, Modal } from "react-bootstrap"; // Importa componentes de Bootstrap para la UI
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // Importa los iconos de FontAwesome
+import { faEdit, faCheck } from "@fortawesome/free-solid-svg-icons"; // Iconos de edición y confirmación
+import { faSave } from "@fortawesome/free-solid-svg-icons"; // Icono de guardar
+import "./ExportacionesTable.css"; // Importa el archivo de estilos CSS
 
+// Componente principal de la tabla de exportaciones
 const ExportacionesTable = ({ user }) => {
-  const [exportaciones, setExportaciones] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter] = useState("All");
-  const [editingExportacion, setEditingExportacion] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  // Definición de los estados del componente
+  const [exportaciones, setExportaciones] = useState([]); // Almacena las exportaciones recibidas
+  const [searchTerm, setSearchTerm] = useState(""); // Almacena el término de búsqueda del usuario
+  const [filter] = useState("All"); // Filtro fijo por destino (se podría modificar para permitir otros filtros)
+  const [editingExportacion, setEditingExportacion] = useState(null); // Almacena la exportación que se está editando
+  const [showModal, setShowModal] = useState(false); // Controla la visibilidad del modal de edición
 
+  // Función que obtiene las exportaciones desde la API
   const fetchExportaciones = async () => {
     try {
+      // Realiza la solicitud GET para obtener las exportaciones
       const response = await axios.get(
         "https://opsmergeback-production.up.railway.app/api/exportaciones"
       );
+      // Verifica si los datos recibidos son un arreglo
       if (Array.isArray(response.data)) {
-        setExportaciones(response.data);
+        setExportaciones(response.data); // Si es un arreglo, actualiza el estado
       } else {
         console.error("Los datos recibidos no son un array:", response.data);
-        setExportaciones([]);
+        setExportaciones([]); // Si no es un arreglo, muestra un error y resetea el estado
       }
     } catch (error) {
       console.error("Error al obtener los datos de exportaciones:", error);
-      setExportaciones([]);
+      setExportaciones([]); // En caso de error en la solicitud, muestra un error y resetea el estado
     }
   };
 
+  // useEffect para cargar las exportaciones cuando el componente se monta
   useEffect(() => {
-    fetchExportaciones();
-  }, []);
+    fetchExportaciones(); // Llama a la función para obtener las exportaciones
+  }, []); // El array vacío significa que solo se ejecutará una vez, al montar el componente
 
+  // Función que maneja el cambio en el campo de búsqueda
   const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.target.value); // Actualiza el término de búsqueda en el estado
   };
 
+  // Función que maneja la edición de una exportación
   const handleEdit = (exportacion) => {
-    setEditingExportacion(exportacion);
-    setShowModal(true);
+    setEditingExportacion(exportacion); // Establece la exportación seleccionada para editar
+    setShowModal(true); // Muestra el modal de edición
   };
 
+  // Función para formatear la fecha en un formato legible
   const formatFecha = (fecha) => {
-    const date = new Date(fecha);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const date = new Date(fecha); // Convierte la fecha a un objeto Date
+    const year = date.getFullYear(); // Obtiene el año
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtiene el mes, con cero a la izquierda
+    const day = String(date.getDate()).padStart(2, "0"); // Obtiene el día, con cero a la izquierda
+    return `${year}-${month}-${day}`; // Devuelve la fecha en formato YYYY-MM-DD
   };
 
+  // Función que guarda los cambios realizados en una exportación
   const handleSave = async () => {
+    // Formatea la exportación para enviarla al servidor
     const formattedExportacion = {
       ...editingExportacion,
       fechaCarga: editingExportacion.fechaCarga
         ? new Date(editingExportacion.fechaCarga).toLocaleDateString("en-CA")
-        : null,
+        : null, // Si tiene fecha de carga, la formatea a formato "en-CA"
     };
 
     try {
+      // Realiza una solicitud PUT para actualizar la exportación en el servidor
       const response = await axios.put(
         `https://opsmergeback-production.up.railway.app/api/exportaciones/${editingExportacion.id}`,
         formattedExportacion
       );
+      // Actualiza el estado de las exportaciones con la exportación editada
       setExportaciones(
         exportaciones.map((exp) =>
           exp.id === editingExportacion.id ? response.data : exp
         )
       );
-      setShowModal(false);
+      setShowModal(false); // Cierra el modal
     } catch (error) {
       console.error("Error al actualizar la exportación:", error);
     }
   };
 
+  // Función que cambia el estado de una exportación a "Despachado"
   const handleComplete = async (id) => {
     const confirmChange = window.confirm("Una vez cambiado el status a DESPACHADO los datos no podrán editarse. ¿Desea continuar?");
     
     if (confirmChange) {
       try {
+        // Realiza una solicitud PUT para cambiar el estado de la exportación
         await axios.put(`https://opsmergeback-production.up.railway.app/api/exportaciones/status/${id}`, { status: "Despachado" });
+        // Actualiza el estado local de la exportación con el nuevo estado
         setExportaciones(
           exportaciones.map((exp) => (exp.id === id ? { ...exp, status: "Despachado" } : exp))
         );
@@ -91,26 +108,25 @@ const ExportacionesTable = ({ user }) => {
       }
     }
   };
-  
 
+  // Función que maneja el cambio de los campos en el formulario de edición
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setEditingExportacion({ ...editingExportacion, [name]: value });
+    const { name, value } = e.target; // Obtiene el nombre y valor del campo
+    setEditingExportacion({ ...editingExportacion, [name]: value }); // Actualiza el estado de la exportación en edición
   };
 
+  // Filtra las exportaciones basándose en el término de búsqueda
   const filteredExportaciones = Array.isArray(exportaciones)
     ? exportaciones
         .filter((exp) => {
-          const lowerSearchTerm = searchTerm.toLowerCase();
-          const lowerFilter = filter.toLowerCase();
+          const lowerSearchTerm = searchTerm.toLowerCase(); // Convierte el término de búsqueda a minúsculas
+          const lowerFilter = filter.toLowerCase(); // Convierte el filtro a minúsculas
 
-          if (
-            lowerFilter !== "all" &&
-            exp.destino.toLowerCase() !== lowerFilter
-          ) {
-            return false;
+          if (lowerFilter !== "all" && exp.destino.toLowerCase() !== lowerFilter) {
+            return false; // Filtra las exportaciones según el destino
           }
 
+          // Filtra por destino, conductor o patente de camión
           return (
             exp.destino?.toLowerCase().includes(lowerSearchTerm) ||
             exp.conductor?.toLowerCase().includes(lowerSearchTerm) ||
@@ -119,9 +135,9 @@ const ExportacionesTable = ({ user }) => {
         })
         .map((exp) => ({
           ...exp,
-          fechaCarga: exp.fechaCarga ? formatFecha(exp.fechaCarga) : "",
+          fechaCarga: exp.fechaCarga ? formatFecha(exp.fechaCarga) : "", // Formatea la fecha de carga
         }))
-    : [];
+    : []; // Si no hay exportaciones, retorna un array vacío
 
   return (
     <div className="exportaciones-table-container">
